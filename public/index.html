@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leonardo Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: { DEFAULT: '#2563eb', hover: '#1d4ed8' },
+                        accent: '#f59e0b',
+                        surface: { DEFAULT: '#1e293b', light: '#334155' },
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.2s ease-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'pulse-slow': 'pulse 3s infinite',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-900 text-white font-sans">
+    <div id="app" class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-slate-800 border-r border-slate-700 flex flex-col shrink-0">
+            <div class="p-4 border-b border-slate-700">
+                <h1 class="text-xl font-bold text-primary flex items-center gap-2">
+                    <span class="text-2xl">🎯</span>
+                    <span>Leonardo</span>
+                </h1>
+            </div>
+
+            <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+                <button onclick="showView('dashboard')" data-view="dashboard" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
+                    <span>🏠</span> <span>Dashboard</span>
+                </button>
+                <button onclick="showView('chat')" data-view="chat" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
+                    <span>💬</span> <span>Chat</span>
+                </button>
+                <button onclick="showView('projects')" data-view="projects" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
+                    <span>📊</span> <span>Projects</span>
+                </button>
+                <button onclick="showView('tasks')" data-view="tasks" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
+                    <span>✅</span> <span>Tasks</span>
+                </button>
+
+                <div class="border-t border-slate-700 my-3"></div>
+
+                <button onclick="showView('memory')" data-view="memory" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
+                    <span>🧠</span> <span>Memory</span>
+                </button>
+                <button onclick="showView('sessions')" data-view="sessions" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
+                    <span>⚡</span> <span>Sessions</span>
+                </button>
+                <button onclick="showView('files')" data-view="files" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
+                    <span>📁</span> <span>Files</span>
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-slate-700">
+                <div id="status-indicator" class="flex items-center gap-2 mb-3">
+                    <div class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                    <span class="text-sm text-slate-400">Connecting...</span>
+                </div>
+                <div class="text-xs text-slate-500 mb-2">
+                    <span id="username-display" class="text-slate-400">-</span>
+                </div>
+                <button onclick="logout()" class="text-xs text-red-400 hover:text-red-300 transition">
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden bg-slate-900">
+
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view flex-1 flex flex-col overflow-y-auto hidden">
+                <div class="p-6 max-w-7xl mx-auto w-full">
+                    <!-- Header -->
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold">Welcome back! 👋</h2>
+                        <p class="text-slate-400 mt-1">Here's what's happening today</p>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <div class="stat-card bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-5">
+                            <div class="text-blue-200 text-sm font-medium">Active Projects</div>
+                            <div class="text-3xl font-bold mt-1" id="stat-projects">-</div>
+                            <div class="text-blue-200 text-xs mt-2">In progress</div>
+                        </div>
+                        <div class="stat-card bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl p-5">
+                            <div class="text-amber-100 text-sm font-medium">Tasks Due</div>
+                            <div class="text-3xl font-bold mt-1" id="stat-tasks">-</div>
+                            <div class="text-amber-100 text-xs mt-2">Today & overdue</div>
+                        </div>
+                        <div class="stat-card bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl p-5">
+                            <div class="text-emerald-100 text-sm font-medium">Completed</div>
+                            <div class="text-3xl font-bold mt-1" id="stat-completed">-</div>
+                            <div class="text-emerald-100 text-xs mt-2">Tasks done</div>
+                        </div>
+                        <div class="stat-card bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl p-5">
+                            <div class="text-purple-100 text-sm font-medium">Messages</div>
+                            <div class="text-3xl font-bold mt-1" id="stat-messages">-</div>
+                            <div class="text-purple-100 text-xs mt-2">Today</div>
+                        </div>
+                    </div>
+
+                    <!-- Two Column Layout -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Today's Focus -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+                                <h3 class="font-semibold mb-4 flex items-center gap-2">
+                                    <span>🎯</span> Today's Focus
+                                </h3>
+                                <div id="focus-tasks" class="space-y-2">
+                                    <div class="text-slate-500 text-sm">Loading...</div>
+                                </div>
+                            </div>
+
+                            <!-- Active Projects -->
+                            <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+                                <h3 class="font-semibold mb-4 flex items-center gap-2">
+                                    <span>🚀</span> Active Projects
+                                </h3>
+                                <div id="focus-projects" class="space-y-3">
+                                    <div class="text-slate-500 text-sm">Loading...</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activity Feed -->
+                        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+                            <h3 class="font-semibold mb-4 flex items-center gap-2">
+                                <span>📈</span> Recent Activity
+                            </h3>
+                            <div id="activity-feed" class="space-y-3 max-h-96 overflow-y-auto">
+                                <div class="text-slate-500 text-sm">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="mt-8 flex flex-wrap gap-3">
+                        <button onclick="showView('chat')" class="quick-action-btn bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-lg font-medium transition transform hover:scale-105">
+                            💬 Chat with Leonardo
+                        </button>
+                        <button onclick="showNewProjectModal()" class="quick-action-btn bg-slate-700 hover:bg-slate-600 px-5 py-2.5 rounded-lg font-medium transition transform hover:scale-105">
+                            ➕ New Project
+                        </button>
+                        <button onclick="showNewTaskModal()" class="quick-action-btn bg-slate-700 hover:bg-slate-600 px-5 py-2.5 rounded-lg font-medium transition transform hover:scale-105">
+                            ✅ Add Task
+                        </button>
+                        <button onclick="showQuickNoteModal()" class="quick-action-btn bg-slate-700 hover:bg-slate-600 px-5 py-2.5 rounded-lg font-medium transition transform hover:scale-105">
+                            📝 Quick Note
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat View -->
+            <div id="chat-view" class="view flex-1 flex flex-col hidden">
+                <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <span>💬</span> Chat with Leonardo
+                    </h2>
+                    <div class="flex items-center gap-2">
+                        <button onclick="exportChat()" class="text-sm text-slate-400 hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-slate-700">
+                            📥 Export
+                        </button>
+                        <button onclick="clearChat()" class="text-sm text-slate-400 hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-slate-700">
+                            🗑️ Clear
+                        </button>
+                    </div>
+                </div>
+
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+
+                <div id="typing-indicator" class="px-4 py-2 text-slate-400 text-sm hidden">
+                    <span class="animate-pulse">🤖 Leonardo is typing...</span>
+                </div>
+
+                <div class="p-4 border-t border-slate-700 bg-slate-800/50">
+                    <div class="flex gap-3 max-w-4xl mx-auto">
+                        <input
+                            type="text"
+                            id="chat-input"
+                            placeholder="Type your message..."
+                            class="flex-1 bg-slate-800 rounded-xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-primary border border-slate-600"
+                            onkeypress="handleChatKeypress(event)"
+                        >
+                        <button onclick="sendMessage()" id="send-btn" class="bg-primary hover:bg-primary-hover px-6 py-3 rounded-xl font-semibold transition disabled:opacity-50">
+                            Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects View -->
+            <div id="projects-view" class="view flex-1 flex flex-col hidden">
+                <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <span>📊</span> Projects
+                    </h2>
+                    <button onclick="showNewProjectModal()" class="bg-primary hover:bg-primary-hover px-4 py-2 rounded-lg text-sm font-semibold transition">
+                        + New Project
+                    </button>
+                </div>
+                <div class="flex-1 overflow-x-auto p-4">
+                    <div class="flex gap-4 h-full min-w-max">
+                        <div class="w-72 flex flex-col">
+                            <h3 class="font-semibold mb-3 text-slate-400 flex items-center gap-2">
+                                <span class="w-3 h-3 bg-slate-500 rounded-full"></span>
+                                Backlog
+                                <span id="backlog-count" class="text-xs bg-slate-700 px-2 py-0.5 rounded-full ml-auto">0</span>
+                            </h3>
+                            <div id="backlog-column" class="flex-1 space-y-2 min-h-[200px] bg-slate-800/50 rounded-xl p-3 border-2 border-dashed border-slate-700"></div>
+                        </div>
+                        <div class="w-72 flex flex-col">
+                            <h3 class="font-semibold mb-3 text-blue-400 flex items-center gap-2">
+                                <span class="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></span>
+                                In Progress
+                                <span id="in_progress-count" class="text-xs bg-slate-700 px-2 py-0.5 rounded-full ml-auto">0</span>
+                            </h3>
+                            <div id="in_progress-column" class="flex-1 space-y-2 min-h-[200px] bg-slate-800/50 rounded-xl p-3 border-2 border-dashed border-blue-900/50"></div>
+                        </div>
+                        <div class="w-72 flex flex-col">
+                            <h3 class="font-semibold mb-3 text-orange-400 flex items-center gap-2">
+                                <span class="w-3 h-3 bg-orange-500 rounded-full"></span>
+                                Blocked
+                                <span id="blocked-count" class="text-xs bg-slate-700 px-2 py-0.5 rounded-full ml-auto">0</span>
+                            </h3>
+                            <div id="blocked-column" class="flex-1 space-y-2 min-h-[200px] bg-slate-800/50 rounded-xl p-3 border-2 border-dashed border-orange-900/50"></div>
+                        </div>
+                        <div class="w-72 flex flex-col">
+                            <h3 class="font-semibold mb-3 text-green-400 flex items-center gap-2">
+                                <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                                Done
+                                <span id="done-count" class="text-xs bg-slate-700 px-2 py-0.5 rounded-full ml-auto">0</span>
+                            </h3>
+                            <div id="done-column" class="flex-1 space-y-2 min-h-[200px] bg-slate-800/50 rounded-xl p-3 border-2 border-dashed border-green-900/50"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks View -->
+            <div id="tasks-view" class="view flex-1 flex flex-col hidden">
+                <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <span>✅</span> Tasks
+                    </h2>
+                    <button onclick="showNewTaskModal()" class="bg-primary hover:bg-primary-hover px-4 py-2 rounded-lg text-sm font-semibold transition">
+                        + New Task
+                    </button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-4">
+                    <div class="max-w-2xl mx-auto">
+                        <div id="tasks-pending" class="space-y-2 mb-6"></div>
+                        <div id="tasks-completed-section" class="hidden">
+                            <h3 class="text-sm text-slate-400 mb-3 flex items-center gap-2">
+                                <span>Completed</span>
+                                <span id="completed-count" class="text-xs bg-slate-700 px-2 py-0.5 rounded-full">0</span>
+                            </h3>
+                            <div id="tasks-completed" class="space-y-2 opacity-60"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Memory View -->
+            <div id="memory-view" class="view flex-1 flex flex-col hidden">
+                <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <span>🧠</span> Memory Hub
+                    </h2>
+                    <div class="flex items-center gap-2">
+                        <button onclick="showQuickNoteModal()" class="bg-primary hover:bg-primary-hover px-4 py-2 rounded-lg text-sm font-semibold transition">
+                            + Quick Note
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-1 flex overflow-hidden">
+                    <!-- Memory Sidebar -->
+                    <div class="w-72 border-r border-slate-700 flex flex-col bg-slate-800/30">
+                        <div class="p-3">
+                            <div class="relative">
+                                <input type="text" id="memory-search" placeholder="Search memory..."
+                                    class="w-full bg-slate-800 rounded-lg px-4 py-2 pl-10 text-sm border border-slate-600 focus:outline-none focus:ring-2 focus:ring-primary"
+                                    onkeypress="if(event.key==='Enter')searchMemory()">
+                                <span class="absolute left-3 top-2.5 text-slate-400">🔍</span>
+                            </div>
+                        </div>
+                        <div class="p-3 text-xs text-slate-400 border-b border-slate-700">
+                            <span id="memory-path-display">/</span>
+                        </div>
+                        <div id="memory-file-list" class="flex-1 overflow-y-auto p-2">
+                            <div class="text-slate-500 text-sm p-2">Loading...</div>
+                        </div>
+                    </div>
+                    <!-- Memory Content -->
+                    <div class="flex-1 flex flex-col">
+                        <div id="memory-content-area" class="flex-1 overflow-y-auto p-4">
+                            <div class="text-center text-slate-500 py-12">
+                                <div class="text-4xl mb-4">🧠</div>
+                                <p>Select a file to view its contents</p>
+                                <p class="text-sm mt-2">Or search for memories above</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sessions View -->
+            <div id="sessions-view" class="view flex-1 flex flex-col hidden">
+                <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <span>⚡</span> Sessions
+                    </h2>
+                    <div class="flex items-center gap-2">
+                        <button onclick="refreshSessions()" class="text-sm text-slate-400 hover:text-white px-3 py-2 rounded-lg hover:bg-slate-700 transition">
+                            🔄 Refresh
+                        </button>
+                        <button onclick="showSpawnSessionModal()" class="bg-primary hover:bg-primary-hover px-4 py-2 rounded-lg text-sm font-semibold transition">
+                            + Spawn Agent
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-4">
+                    <div class="max-w-4xl mx-auto">
+                        <div id="sessions-list" class="space-y-3">
+                            <div class="text-slate-500 text-center py-8">Loading sessions...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Files View -->
+            <div id="files-view" class="view flex-1 flex flex-col hidden">
+                <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <span>📁</span> File Browser
+                    </h2>
+                    <div class="flex items-center gap-2">
+                        <button onclick="createNewFile()" class="text-sm text-slate-400 hover:text-white px-3 py-2 rounded-lg hover:bg-slate-700 transition">
+                            📄 New File
+                        </button>
+                        <button onclick="createNewFolder()" class="text-sm text-slate-400 hover:text-white px-3 py-2 rounded-lg hover:bg-slate-700 transition">
+                            📁 New Folder
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-1 flex overflow-hidden">
+                    <!-- File Tree -->
+                    <div class="w-72 border-r border-slate-700 flex flex-col bg-slate-800/30">
+                        <div class="p-3">
+                            <div class="relative">
+                                <input type="text" id="file-search" placeholder="Search files..."
+                                    class="w-full bg-slate-800 rounded-lg px-4 py-2 pl-10 text-sm border border-slate-600 focus:outline-none focus:ring-2 focus:ring-primary"
+                                    onkeypress="if(event.key==='Enter')searchFiles()">
+                                <span class="absolute left-3 top-2.5 text-slate-400">🔍</span>
+                            </div>
+                        </div>
+                        <div class="p-3 border-b border-slate-700 flex items-center gap-2">
+                            <button onclick="navigateUp()" class="text-slate-400 hover:text-white p-1" title="Go up">
+                                ⬆️
+                            </button>
+                            <span id="file-path-display" class="text-xs text-slate-400 truncate flex-1">/</span>
+                        </div>
+                        <div id="file-list" class="flex-1 overflow-y-auto p-2">
+                            <div class="text-slate-500 text-sm p-2">Loading...</div>
+                        </div>
+                    </div>
+                    <!-- File Content -->
+                    <div class="flex-1 flex flex-col">
+                        <div id="file-content-area" class="flex-1 overflow-y-auto p-4">
+                            <div class="text-center text-slate-500 py-12">
+                                <div class="text-4xl mb-4">📁</div>
+                                <p>Select a file to view its contents</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal Container -->
+    <div id="modal-container"></div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/chat.js"></script>
+    <script src="/js/projects.js"></script>
+    <script src="/js/tasks.js"></script>
+    <script src="/js/dashboard.js"></script>
+    <script src="/js/memory.js"></script>
+    <script src="/js/sessions.js"></script>
+    <script src="/js/files.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
