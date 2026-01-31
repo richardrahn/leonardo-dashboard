@@ -223,20 +223,14 @@
                         </div>
                     </div>
 
-                    <!-- Quick Actions -->
-                    <div class="mt-8 flex flex-wrap gap-3">
-                        <button onclick="showView('chat')" class="quick-action-btn bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-lg font-medium transition transform hover:scale-105">
-                            💬 Chat with Leonardo
-                        </button>
-                        <button onclick="showNewProjectModal()" class="quick-action-btn bg-slate-700 hover:bg-slate-600 px-5 py-2.5 rounded-lg font-medium transition transform hover:scale-105">
-                            ➕ New Project
-                        </button>
-                        <button onclick="showNewTaskModal()" class="quick-action-btn bg-slate-700 hover:bg-slate-600 px-5 py-2.5 rounded-lg font-medium transition transform hover:scale-105">
-                            ✅ Add Task
-                        </button>
-                        <button onclick="showQuickNoteModal()" class="quick-action-btn bg-slate-700 hover:bg-slate-600 px-5 py-2.5 rounded-lg font-medium transition transform hover:scale-105">
-                            📝 Quick Note
-                        </button>
+                    <!-- Quick Actions Hub -->
+                    <div class="mt-8">
+                        <h3 class="font-semibold mb-4 flex items-center gap-2">
+                            <span>⚡</span> Quick Actions
+                        </h3>
+                        <div id="quick-actions-hub" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <!-- Quick actions will be rendered here -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -675,6 +669,7 @@
     <script src="/js/calendar.js"></script>
     <script src="/js/briefing.js"></script>
     <script src="/js/weather.js"></script>
+    <script src="/js/quick-actions.js"></script>
     <script src="/js/settings.js"></script>
     <script src="/js/app.js"></script>
 </body>

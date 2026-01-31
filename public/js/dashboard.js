@@ -10,6 +10,8 @@ async function loadDashboard() {
             loadMorningBriefing(),
             loadWeather()
         ]);
+        // Initialize quick actions (synchronous)
+        initQuickActions();
     } catch (error) {
         console.error('Failed to load dashboard:', error);
     }
