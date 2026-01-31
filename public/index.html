@@ -189,6 +189,18 @@
 
                         <!-- Right Sidebar -->
                         <div class="space-y-6">
+                            <!-- Weather Widget -->
+                            <div class="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl p-5 border border-blue-500/30">
+                                <h3 class="font-semibold mb-4 flex items-center gap-2">
+                                    <span>🌤️</span> Weather
+                                </h3>
+                                <div id="weather-widget">
+                                    <div class="text-center text-slate-400 py-2 text-sm">
+                                        <div class="animate-pulse">Loading...</div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Today's Calendar Events -->
                             <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
                                 <h3 class="font-semibold mb-4 flex items-center gap-2">
@@ -662,6 +674,7 @@
     <script src="/js/gmail.js"></script>
     <script src="/js/calendar.js"></script>
     <script src="/js/briefing.js"></script>
+    <script src="/js/weather.js"></script>
     <script src="/js/settings.js"></script>
     <script src="/js/app.js"></script>
 </body>
