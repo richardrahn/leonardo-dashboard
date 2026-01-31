@@ -16,6 +16,7 @@ const sessionRoutes = require('./routes/sessions');
 const fileRoutes = require('./routes/files');
 const settingsRoutes = require('./routes/settings');
 const calendarRoutes = require('./routes/calendar');
+const briefingRoutes = require('./routes/briefing');
 
 // Middleware & Services
 const errorHandler = require('./middleware/error');
@@ -47,6 +48,7 @@ app.use('/api/sessions', sessionRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/calendar', calendarRoutes);
+app.use('/api/briefing', briefingRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

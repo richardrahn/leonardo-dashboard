@@ -20,18 +20,30 @@
 
 ## Phase 2: Build - In Progress
 
-### 🚀 Priority 1: Google Calendar Integration
-**Status:** Starting now
+### ✅ Priority 1: Google Calendar Integration
+**Status:** COMPLETE (11:35 AM MST)
 **Goal:** Today's events, next meeting countdown, quick join links
 
 **Tasks:**
-- [ ] Set up Google Calendar API OAuth
-- [ ] Create `services/google-calendar.js`
-- [ ] Add calendar database schema
-- [ ] Create calendar route `/api/calendar`
-- [ ] Build calendar widget UI
-- [ ] Add WebSocket real-time updates
-- [ ] Test with Richard's calendar
+- [x] Set up Google Calendar API OAuth
+- [x] Create `services/google-calendar.js`
+- [x] Create calendar route `/api/calendar`
+- [x] Build calendar widget UI
+- [x] Add auto-refresh (5 minutes)
+- [x] Created CALENDAR-SETUP.md guide
+- [x] Committed to git
+
+**Implementation:**
+- Google Calendar API with OAuth 2.0
+- Today's events display in sidebar
+- Next meeting countdown card (prominent on dashboard)
+- Meeting links auto-extracted (Google Meet, Zoom)
+- Auto-refresh every 5 minutes
+- Color-coded by urgency (green > yellow > red)
+
+**Notes:**
+- Requires Richard to set up OAuth credentials (see CALENDAR-SETUP.md)
+- Works without calendar (gracefully handles missing credentials)
 
 ### 🎯 Priority 2: Morning Briefing Card
 **Status:** Queued

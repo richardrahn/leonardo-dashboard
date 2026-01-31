@@ -6,7 +6,8 @@ async function loadDashboard() {
             loadDashboardStats(),
             loadFocusItems(),
             loadActivityFeed(),
-            initializeCalendar()
+            initializeCalendar(),
+            loadMorningBriefing()
         ]);
     } catch (error) {
         console.error('Failed to load dashboard:', error);

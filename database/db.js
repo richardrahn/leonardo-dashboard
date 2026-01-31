@@ -62,6 +62,45 @@ class DB {
         );
     }
 
+    // Tasks helpers for briefing
+    getTasksDueToday() {
+        const today = new Date().toISOString().split('T')[0];
+        return this.all(
+            'SELECT * FROM tasks WHERE due_date = ? AND completed = 0',
+            [today]
+        );
+    }
+
+    getOverdueTasks() {
+        const today = new Date().toISOString().split('T')[0];
+        return this.all(
+            'SELECT * FROM tasks WHERE due_date < ? AND completed = 0',
+            [today]
+        );
+    }
+
+    getHighPriorityTasks() {
+        return this.all(
+            'SELECT * FROM tasks WHERE priority = ? AND completed = 0',
+            ['high']
+        );
+    }
+
+    // Projects helpers for briefing
+    getActiveProjects() {
+        return this.all(
+            'SELECT * FROM projects WHERE status = ?',
+            ['in_progress']
+        );
+    }
+
+    getBlockedProjects() {
+        return this.all(
+            'SELECT * FROM projects WHERE status = ?',
+            ['blocked']
+        );
+    }
+
     close() {
         this.db.close();
     }
