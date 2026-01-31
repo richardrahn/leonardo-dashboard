@@ -67,6 +67,12 @@ function sendMessage() {
         sendBtn.disabled = false;
         input.focus();
     }, 100);
+
+    // Safety fallback - always re-enable after 30 seconds
+    setTimeout(() => {
+        input.disabled = false;
+        sendBtn.disabled = false;
+    }, 30000);
 }
 
 function appendMessage(role, content, timestamp, scroll = true) {
@@ -87,6 +93,27 @@ function appendMessage(role, content, timestamp, scroll = true) {
 
     // Render markdown content
     messageDiv.innerHTML = marked.parse(content);
+
+    // Add speaker button for assistant messages
+    if (role === 'assistant' && window.speechManager) {
+        const speakerBtn = window.speechManager.addSpeakerButton(messageDiv, content);
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'flex items-center justify-between mb-1';
+        
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'text-xs font-semibold text-slate-400';
+        labelSpan.textContent = 'Leonardo';
+        
+        headerDiv.appendChild(labelSpan);
+        headerDiv.appendChild(speakerBtn);
+        
+        messageDiv.insertBefore(headerDiv, messageDiv.firstChild);
+        
+        // Auto-play if enabled
+        if (window.speechManager.autoPlayTTS) {
+            window.speechManager.speak(content, true);
+        }
+    }
 
     // Add timestamp
     if (timestamp) {

@@ -31,6 +31,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadTasks()
     ]);
 
+    // Load theme preference
+    loadTheme();
+
     // Show default view (dashboard)
     showView('dashboard');
 });
@@ -57,21 +60,38 @@ function initializeSocket() {
 
     // Chat events
     socket.on('chat:message', (data) => {
-        appendMessage(data.role, data.content, data.timestamp);
+        console.log('Received chat message:', data);
+        try {
+            appendMessage(data.role, data.content, data.timestamp);
+            // Make sure input is re-enabled
+            const input = document.getElementById('chat-input');
+            const sendBtn = document.getElementById('send-btn');
+            if (input) input.disabled = false;
+            if (sendBtn) sendBtn.disabled = false;
+        } catch (error) {
+            console.error('Error appending message:', error);
+        }
     });
 
     socket.on('chat:typing', (data) => {
         const indicator = document.getElementById('typing-indicator');
-        if (data.typing) {
-            indicator.classList.remove('hidden');
-        } else {
-            indicator.classList.add('hidden');
+        if (indicator) {
+            if (data.typing) {
+                indicator.classList.remove('hidden');
+            } else {
+                indicator.classList.add('hidden');
+            }
         }
     });
 
     socket.on('chat:error', (data) => {
         console.error('Chat error:', data);
         showToast(data.message || 'Chat error', 'error');
+        // Re-enable input on error
+        const input = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        if (input) input.disabled = false;
+        if (sendBtn) sendBtn.disabled = false;
     });
 
     // Project events
@@ -197,6 +217,12 @@ function showView(view) {
             break;
         case 'files':
             loadFiles();
+            break;
+        case 'settings':
+            loadSettings();
+            break;
+        case 'gmail':
+            loadGmail();
             break;
     }
 }
@@ -348,4 +374,46 @@ function showQuickNav() {
 
     document.getElementById('modal-container').appendChild(modal);
     document.getElementById('quick-nav-input').focus();
+}
+
+// Theme Management
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.classList.contains('dark') ? 'dark' : 'light';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    if (newTheme === 'dark') {
+        html.classList.add('dark');
+    } else {
+        html.classList.remove('dark');
+    }
+    
+    localStorage.setItem('theme', newTheme);
+    updateThemeUI(newTheme);
+}
+
+function loadTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    const html = document.documentElement;
+    
+    if (savedTheme === 'dark') {
+        html.classList.add('dark');
+    } else {
+        html.classList.remove('dark');
+    }
+    
+    updateThemeUI(savedTheme);
+}
+
+function updateThemeUI(theme) {
+    const icon = document.getElementById('theme-icon');
+    const text = document.getElementById('theme-text');
+    
+    if (theme === 'dark') {
+        icon.textContent = '☀️';
+        text.textContent = 'Light Mode';
+    } else {
+        icon.textContent = '🌙';
+        text.textContent = 'Dark Mode';
+    }
 }

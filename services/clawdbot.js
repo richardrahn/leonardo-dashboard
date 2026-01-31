@@ -1,173 +1,440 @@
-const axios = require('axios');
+const WebSocket = require('ws');
+const EventEmitter = require('events');
 
-const CLAWDBOT_API = process.env.CLAWDBOT_API_URL || 'http://localhost:3100';
+const CLAWDBOT_WS = process.env.CLAWDBOT_WS_URL || 'ws://127.0.0.1:18789';
+const CLAWDBOT_TOKEN = process.env.CLAWDBOT_TOKEN || '';
+const RECONNECT_DELAY = 3000;
+const MESSAGE_TIMEOUT = 90000; // 90 seconds
 
-class ClawdbotService {
+class ClawdbotService extends EventEmitter {
     constructor() {
-        this.client = axios.create({
-            baseURL: CLAWDBOT_API,
-            timeout: 65000
-        });
+        super();
+        this.ws = null;
+        this.connected = false;
+        this.reconnecting = false;
+        this.pendingMessages = new Map();
+        this.messageId = 0;
+        this.sessionKey = 'main';
+
+        // Start connection
+        this.connect();
     }
 
-    async findLeonardoSession() {
+    connect() {
+        if (this.reconnecting) return;
+
+        this.reconnecting = true;
+        this.handshakeComplete = false;
+        console.log(`[Clawdbot] Connecting to ${CLAWDBOT_WS}...`);
+
         try {
-            const sessions = await this.getSessionStatus();
-            const leonardoSession = sessions.find(s =>
-                s.name?.toLowerCase().includes('leonardo') ||
-                s.key === 'main' ||
-                s.type === 'main'
-            );
-            return leonardoSession?.key || 'main';
+            this.ws = new WebSocket(CLAWDBOT_WS);
+
+            this.ws.on('open', () => {
+                console.log('[Clawdbot] WebSocket opened, waiting for challenge...');
+            });
+
+            this.ws.on('message', (data) => {
+                try {
+                    const message = JSON.parse(data.toString());
+                    console.log('[Clawdbot] Received:', JSON.stringify(message).substring(0, 200));
+                    this.handleMessage(message);
+                } catch (error) {
+                    console.error('[Clawdbot] Failed to parse message:', error.message);
+                }
+            });
+
+            this.ws.on('error', (error) => {
+                console.error('[Clawdbot] WebSocket error:', error.message);
+                this.connected = false;
+            });
+
+            this.ws.on('close', () => {
+                console.log('[Clawdbot] WebSocket disconnected');
+                this.connected = false;
+                this.reconnecting = false;
+
+                // Reject all pending messages
+                for (const [id, pending] of this.pendingMessages) {
+                    pending.reject(new Error('Connection closed'));
+                }
+                this.pendingMessages.clear();
+
+                // Attempt to reconnect
+                setTimeout(() => this.connect(), RECONNECT_DELAY);
+            });
+
         } catch (error) {
-            console.error('Failed to find Leonardo session:', error.message);
-            return 'main';
+            console.error('[Clawdbot] Connection failed:', error.message);
+            this.reconnecting = false;
+            setTimeout(() => this.connect(), RECONNECT_DELAY);
+        }
+    }
+
+    handleMessage(message) {
+        // Handle connect.challenge event
+        if (message.type === 'event' && message.event === 'connect.challenge') {
+            console.log('[Clawdbot] Received challenge, sending connect request...');
+            const connectRequest = {
+                type: 'req',
+                id: 'connect-' + Date.now(),
+                method: 'connect',
+                params: {
+                    minProtocol: 3,
+                    maxProtocol: 3,
+                    client: {
+                        id: 'cli',
+                        version: '1.0.0',
+                        platform: 'linux',
+                        mode: 'operator'
+                    },
+                    role: 'operator',
+                    scopes: ['operator.read', 'operator.write'],
+                    caps: [],
+                    commands: [],
+                    permissions: {},
+                    auth: CLAWDBOT_TOKEN ? { token: CLAWDBOT_TOKEN } : {},
+                    locale: 'en-US',
+                    userAgent: 'leonardo-dashboard/1.0.0'
+                }
+            };
+            this.ws.send(JSON.stringify(connectRequest));
+            return;
+        }
+
+        // Handle connect response
+        if (message.type === 'res' && message.ok && message.payload && message.payload.type === 'hello-ok') {
+            console.log('[Clawdbot] Handshake complete ✓');
+            this.connected = true;
+            this.handshakeComplete = true;
+            this.reconnecting = false;
+            this.emit('connected');
+            return;
+        }
+
+        // Handle different message types from Clawdbot Gateway
+        if (message.type === 'res' && message.id) {
+            const pending = this.pendingMessages.get(message.id);
+            if (pending) {
+                clearTimeout(pending.timeout);
+                if (message.ok) {
+                    pending.resolve(message.payload);
+                } else {
+                    pending.reject(new Error(message.error || 'Unknown error'));
+                }
+                this.pendingMessages.delete(message.id);
+            }
+        } else if (message.type === 'event') {
+            // Unsolicited events from gateway
+            console.log('[Clawdbot] Event:', message.event);
+            this.emit('event', message);
         }
     }
 
     async sendMessage(message) {
-        try {
-            const sessionKey = await this.findLeonardoSession();
-            console.log(`[Clawdbot] Sending to session "${sessionKey}"`);
-
-            const response = await this.client.post('/api/sessions/send', {
-                sessionKey: sessionKey,
-                message: message,
-                timeoutSeconds: 60
-            });
-
-            if (response.data?.response) {
-                return response.data.response;
-            }
-            if (response.data?.message) {
-                return response.data.message;
-            }
-            if (typeof response.data === 'string') {
-                return response.data;
-            }
-
-            return JSON.stringify(response.data) || 'No response from Leonardo';
-        } catch (error) {
-            console.error('[Clawdbot] API error:', error.message);
-            return this.formatError(error);
+        if (!this.connected || !this.handshakeComplete) {
+            return this.formatError(new Error('Not connected to Clawdbot Gateway'));
         }
+
+        const id = 'msg-' + (++this.messageId);
+        const payload = {
+            type: 'req',
+            id: id,
+            method: 'sessions.send',
+            params: {
+                sessionKey: this.sessionKey,
+                message: message
+            }
+        };
+
+        return new Promise((resolve, reject) => {
+            // Set up timeout
+            const timeout = setTimeout(() => {
+                this.pendingMessages.delete(id);
+                reject(new Error('Message timeout - Leonardo is taking too long to respond'));
+            }, MESSAGE_TIMEOUT);
+
+            // Store pending message
+            this.pendingMessages.set(id, { resolve, reject, timeout });
+
+            // Send via WebSocket
+            try {
+                this.ws.send(JSON.stringify(payload));
+                console.log(`[Clawdbot] Sent message #${id} to session "${this.sessionKey}"`);
+            } catch (error) {
+                clearTimeout(timeout);
+                this.pendingMessages.delete(id);
+                reject(error);
+            }
+        }).catch(error => {
+            console.error('[Clawdbot] Send error:', error.message);
+            return this.formatError(error);
+        });
     }
 
     async getSessionStatus() {
-        try {
-            const response = await this.client.get('/api/sessions');
-            return Array.isArray(response.data) ? response.data : [];
-        } catch (error) {
-            console.error('[Clawdbot] Failed to get sessions:', error.message);
+        if (!this.connected || !this.handshakeComplete) {
             return [];
         }
+
+        const id = 'sessions-' + (++this.messageId);
+        const payload = {
+            type: 'req',
+            id: id,
+            method: 'sessions.list',
+            params: {}
+        };
+
+        return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                this.pendingMessages.delete(id);
+                reject(new Error('Timeout getting sessions'));
+            }, 10000);
+
+            this.pendingMessages.set(id, {
+                resolve: (data) => resolve(Array.isArray(data) ? data : []),
+                reject,
+                timeout
+            });
+
+            try {
+                this.ws.send(JSON.stringify(payload));
+            } catch (error) {
+                clearTimeout(timeout);
+                this.pendingMessages.delete(id);
+                reject(error);
+            }
+        }).catch(error => {
+            console.error('[Clawdbot] Failed to get sessions:', error.message);
+            return [];
+        });
     }
 
     async getSessionDetails(sessionKey) {
-        try {
-            const response = await this.client.get(`/api/sessions/${sessionKey}`);
-            return response.data;
-        } catch (error) {
-            console.error(`[Clawdbot] Failed to get session ${sessionKey}:`, error.message);
-            throw error;
+        if (!this.connected) {
+            throw new Error('Not connected to Clawdbot Gateway');
         }
+
+        const id = ++this.messageId;
+        const payload = {
+            type: 'get_session',
+            id: id,
+            sessionKey: sessionKey
+        };
+
+        return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                this.pendingMessages.delete(id);
+                reject(new Error('Timeout getting session details'));
+            }, 10000);
+
+            this.pendingMessages.set(id, { resolve, reject, timeout });
+
+            try {
+                this.ws.send(JSON.stringify(payload));
+            } catch (error) {
+                clearTimeout(timeout);
+                this.pendingMessages.delete(id);
+                reject(error);
+            }
+        });
     }
 
     async spawnSession({ name, type, prompt }) {
-        try {
-            console.log(`[Clawdbot] Spawning session: ${name} (${type})`);
-
-            const response = await this.client.post('/api/sessions/spawn', {
-                name,
-                type: type || 'claude_code',
-                initialPrompt: prompt
-            });
-
-            return response.data;
-        } catch (error) {
-            console.error('[Clawdbot] Failed to spawn session:', error.message);
-            throw error;
+        if (!this.connected) {
+            throw new Error('Not connected to Clawdbot Gateway');
         }
+
+        console.log(`[Clawdbot] Spawning session: ${name} (${type})`);
+
+        const id = ++this.messageId;
+        const payload = {
+            type: 'spawn_session',
+            id: id,
+            name: name,
+            sessionType: type || 'claude_code',
+            initialPrompt: prompt
+        };
+
+        return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                this.pendingMessages.delete(id);
+                reject(new Error('Timeout spawning session'));
+            }, 30000);
+
+            this.pendingMessages.set(id, { resolve, reject, timeout });
+
+            try {
+                this.ws.send(JSON.stringify(payload));
+            } catch (error) {
+                clearTimeout(timeout);
+                this.pendingMessages.delete(id);
+                reject(error);
+            }
+        });
     }
 
     async sendToSession(sessionKey, message, timeout = 60) {
-        try {
-            const response = await this.client.post('/api/sessions/send', {
-                sessionKey,
-                message,
-                timeoutSeconds: timeout
-            }, {
-                timeout: (timeout + 5) * 1000
-            });
-
-            return response.data;
-        } catch (error) {
-            console.error(`[Clawdbot] Failed to send to session ${sessionKey}:`, error.message);
-            throw error;
+        if (!this.connected) {
+            throw new Error('Not connected to Clawdbot Gateway');
         }
+
+        const id = ++this.messageId;
+        const payload = {
+            type: 'send',
+            id: id,
+            sessionKey: sessionKey,
+            message: message
+        };
+
+        return new Promise((resolve, reject) => {
+            const timer = setTimeout(() => {
+                this.pendingMessages.delete(id);
+                reject(new Error('Message timeout'));
+            }, timeout * 1000);
+
+            this.pendingMessages.set(id, { resolve, reject, timeout: timer });
+
+            try {
+                this.ws.send(JSON.stringify(payload));
+            } catch (error) {
+                clearTimeout(timer);
+                this.pendingMessages.delete(id);
+                reject(error);
+            }
+        });
     }
 
     async killSession(sessionKey) {
-        try {
-            console.log(`[Clawdbot] Killing session: ${sessionKey}`);
-
-            const response = await this.client.delete(`/api/sessions/${sessionKey}`);
-            return response.data;
-        } catch (error) {
-            console.error(`[Clawdbot] Failed to kill session ${sessionKey}:`, error.message);
-            throw error;
+        if (!this.connected) {
+            throw new Error('Not connected to Clawdbot Gateway');
         }
+
+        console.log(`[Clawdbot] Killing session: ${sessionKey}`);
+
+        const id = ++this.messageId;
+        const payload = {
+            type: 'kill_session',
+            id: id,
+            sessionKey: sessionKey
+        };
+
+        return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                this.pendingMessages.delete(id);
+                reject(new Error('Timeout killing session'));
+            }, 10000);
+
+            this.pendingMessages.set(id, { resolve, reject, timeout });
+
+            try {
+                this.ws.send(JSON.stringify(payload));
+            } catch (error) {
+                clearTimeout(timeout);
+                this.pendingMessages.delete(id);
+                reject(error);
+            }
+        });
     }
 
     async getSessionLogs(sessionKey, limit = 50) {
-        try {
-            const response = await this.client.get(`/api/sessions/${sessionKey}/logs`, {
-                params: { limit }
-            });
-            return response.data;
-        } catch (error) {
-            console.error(`[Clawdbot] Failed to get logs for ${sessionKey}:`, error.message);
+        if (!this.connected) {
             return [];
         }
+
+        const id = ++this.messageId;
+        const payload = {
+            type: 'get_logs',
+            id: id,
+            sessionKey: sessionKey,
+            limit: limit
+        };
+
+        return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                this.pendingMessages.delete(id);
+                reject(new Error('Timeout getting logs'));
+            }, 10000);
+
+            this.pendingMessages.set(id, {
+                resolve: (data) => resolve(Array.isArray(data) ? data : []),
+                reject,
+                timeout
+            });
+
+            try {
+                this.ws.send(JSON.stringify(payload));
+            } catch (error) {
+                clearTimeout(timeout);
+                this.pendingMessages.delete(id);
+                reject(error);
+            }
+        }).catch(error => {
+            console.error(`[Clawdbot] Failed to get logs for ${sessionKey}:`, error.message);
+            return [];
+        });
     }
 
     async searchMemory(query) {
-        try {
-            const response = await this.client.post('/api/memory/search', {
-                query,
-                limit: 20
-            });
-            return response.data;
-        } catch (error) {
-            console.error('[Clawdbot] Memory search failed:', error.message);
+        if (!this.connected) {
             return { results: [] };
         }
+
+        const id = ++this.messageId;
+        const payload = {
+            type: 'search_memory',
+            id: id,
+            query: query,
+            limit: 20
+        };
+
+        return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                this.pendingMessages.delete(id);
+                reject(new Error('Memory search timeout'));
+            }, 15000);
+
+            this.pendingMessages.set(id, {
+                resolve: (data) => resolve(data || { results: [] }),
+                reject,
+                timeout
+            });
+
+            try {
+                this.ws.send(JSON.stringify(payload));
+            } catch (error) {
+                clearTimeout(timeout);
+                this.pendingMessages.delete(id);
+                reject(error);
+            }
+        }).catch(error => {
+            console.error('[Clawdbot] Memory search failed:', error.message);
+            return { results: [] };
+        });
     }
 
     formatError(error) {
-        if (error.code === 'ECONNREFUSED') {
-            return `**Connection Error**\n\nCannot reach Clawdbot at \`${CLAWDBOT_API}\`.\n\nMake sure Clawdbot is running on the same machine.`;
+        if (!this.connected) {
+            return `**Connection Error**\n\nNot connected to Clawdbot Gateway at \`${CLAWDBOT_WS}\`.\n\nMake sure Clawdbot is running and the WebSocket endpoint is accessible.`;
         }
 
-        if (error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
-            return `**Timeout**\n\nRequest to Clawdbot timed out. Leonardo might be processing a complex request.`;
-        }
-
-        if (error.response) {
-            const status = error.response.status;
-            const message = error.response.data?.error || error.response.data?.message || 'Unknown error';
-
-            if (status === 404) {
-                return `**Not Found**\n\nThe requested session or resource was not found.`;
-            }
-            if (status === 503) {
-                return `**Service Unavailable**\n\nClawdbot is temporarily unavailable. Try again in a moment.`;
-            }
-
-            return `**API Error (${status})**\n\n${message}`;
+        if (error.message.includes('timeout') || error.message.includes('Timeout')) {
+            return `**Timeout**\n\nLeonardo is taking longer than expected to respond. The request may still be processing.`;
         }
 
         return `**Error**\n\n${error.message}`;
+    }
+
+    // Helper to check connection status
+    isConnected() {
+        return this.connected;
+    }
+
+    // Graceful shutdown
+    disconnect() {
+        if (this.ws) {
+            this.ws.close();
+        }
     }
 }
 

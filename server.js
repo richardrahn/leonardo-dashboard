@@ -14,11 +14,13 @@ const systemRoutes = require('./routes/system');
 const memoryRoutes = require('./routes/memory');
 const sessionRoutes = require('./routes/sessions');
 const fileRoutes = require('./routes/files');
+const settingsRoutes = require('./routes/settings');
+const calendarRoutes = require('./routes/calendar');
 
 // Middleware & Services
 const errorHandler = require('./middleware/error');
 const db = require('./database/db');
-const clawdbot = require('./services/clawdbot');
+const clawdbot = require('./services/clawdbot-http');
 
 const app = express();
 const server = http.createServer(app);
@@ -43,6 +45,8 @@ app.use('/api/system', systemRoutes);
 app.use('/api/memory', memoryRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/files', fileRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/calendar', calendarRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -80,7 +84,9 @@ io.on('connection', (socket) => {
             io.emit('chat:typing', { typing: true });
 
             // Send to Leonardo via Clawdbot
+            console.log('[Chat] Sending message to Clawdbot:', message.substring(0, 50));
             const response = await clawdbot.sendMessage(message);
+            console.log('[Chat] Got response:', response.substring(0, 100));
 
             // Stop typing indicator
             io.emit('chat:typing', { typing: false });
@@ -89,11 +95,13 @@ io.on('connection', (socket) => {
             db.saveChatMessage('main', 'assistant', response);
 
             // Emit response to all clients
-            io.emit('chat:message', {
+            const responseData = {
                 role: 'assistant',
                 content: response,
                 timestamp: new Date().toISOString()
-            });
+            };
+            console.log('[Chat] Emitting response to clients');
+            io.emit('chat:message', responseData);
 
             // Log activity
             db.logActivity('chat_message', 'Chat with Leonardo');

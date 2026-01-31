@@ -5,7 +5,8 @@ async function loadDashboard() {
         await Promise.all([
             loadDashboardStats(),
             loadFocusItems(),
-            loadActivityFeed()
+            loadActivityFeed(),
+            initializeCalendar()
         ]);
     } catch (error) {
         console.error('Failed to load dashboard:', error);
