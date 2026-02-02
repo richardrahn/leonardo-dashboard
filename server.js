@@ -18,6 +18,8 @@ const settingsRoutes = require('./routes/settings');
 const calendarRoutes = require('./routes/calendar');
 const briefingRoutes = require('./routes/briefing');
 const weatherRoutes = require('./routes/weather');
+const monitoringRoutes = require('./routes/monitoring');
+const gmailRoutes = require('./routes/gmail');
 
 // Middleware & Services
 const errorHandler = require('./middleware/error');
@@ -51,6 +53,8 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/briefing', briefingRoutes);
 app.use('/api/weather', weatherRoutes);
+app.use('/api/monitoring', monitoringRoutes);
+app.use('/api/gmail', gmailRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

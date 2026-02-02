@@ -1,5 +1,7 @@
 // Chat functionality
 
+let currentFile = null;
+
 async function loadChatHistory() {
     try {
         const messages = await apiCall('/api/chat/history?limit=100');
@@ -21,8 +23,10 @@ async function loadChatHistory() {
             appendMessage(msg.role, msg.content, msg.timestamp, false);
         });
 
-        // Scroll to bottom
-        container.scrollTop = container.scrollHeight;
+        // Scroll to bottom with extra offset
+        setTimeout(() => {
+            container.scrollTop = container.scrollHeight + 100;
+        }, 10);
     } catch (error) {
         console.error('Failed to load chat history:', error);
     }
@@ -35,12 +39,12 @@ function handleChatKeypress(event) {
     }
 }
 
-function sendMessage() {
+async function sendMessage() {
     const input = document.getElementById('chat-input');
     const sendBtn = document.getElementById('send-btn');
     const message = input.value.trim();
 
-    if (!message) return;
+    if (!message && !currentFile) return;
 
     // Clear empty state if present
     const emptyState = document.querySelector('#chat-messages .empty-state');
@@ -48,15 +52,39 @@ function sendMessage() {
         emptyState.remove();
     }
 
-    // Append user message immediately
-    appendMessage('user', message, new Date().toISOString());
-
     // Disable input while sending
     input.disabled = true;
     sendBtn.disabled = true;
 
+    let fullMessage = message;
+    
+    // Handle file upload if present
+    if (currentFile) {
+        try {
+            appendMessage('user', `📎 Uploading ${currentFile.name}...`, new Date().toISOString());
+            
+            const filePath = await uploadFile(currentFile);
+            fullMessage = `[File uploaded: ${currentFile.name} at ${filePath}]\n\n${message}`;
+            
+            // Clear the uploading message and show final message
+            const messages = document.querySelectorAll('.chat-message');
+            const lastMessage = messages[messages.length - 1];
+            if (lastMessage) lastMessage.remove();
+            
+            clearFileUpload();
+        } catch (error) {
+            showToast('File upload failed: ' + error.message, 'error');
+            input.disabled = false;
+            sendBtn.disabled = false;
+            return;
+        }
+    }
+
+    // Append user message immediately
+    appendMessage('user', fullMessage, new Date().toISOString());
+
     // Send to server via Socket.io
-    socket.emit('chat:message', { message });
+    socket.emit('chat:message', { message: fullMessage });
 
     // Clear input
     input.value = '';
@@ -127,7 +155,10 @@ function appendMessage(role, content, timestamp, scroll = true) {
     container.appendChild(messageWrapper);
 
     if (scroll) {
-        container.scrollTop = container.scrollHeight;
+        // Add extra offset to ensure bottom message isn't cut off
+        setTimeout(() => {
+            container.scrollTop = container.scrollHeight + 100;
+        }, 10);
     }
 }
 
@@ -147,5 +178,62 @@ async function clearChat() {
     } catch (error) {
         console.error('Failed to clear chat:', error);
         alert('Failed to clear chat');
+    }
+}
+
+// File upload functionality
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    currentFile = file;
+    
+    // Show preview
+    const preview = document.getElementById('file-preview');
+    const fileName = document.getElementById('file-preview-name');
+    const fileSize = document.getElementById('file-preview-size');
+    
+    fileName.textContent = file.name;
+    fileSize.textContent = formatFileSize(file.size);
+    preview.classList.remove('hidden');
+    
+    // Focus on input
+    document.getElementById('chat-input').focus();
+}
+
+function clearFileUpload() {
+    currentFile = null;
+    document.getElementById('file-input').value = '';
+    document.getElementById('file-preview').classList.add('hidden');
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+async function uploadFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+        const response = await fetch('/api/chat/upload', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${getToken()}`
+            },
+            body: formData
+        });
+        
+        if (!response.ok) throw new Error('Upload failed');
+        
+        const data = await response.json();
+        return data.path;
+    } catch (error) {
+        console.error('File upload error:', error);
+        throw error;
     }
 }

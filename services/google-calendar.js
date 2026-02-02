@@ -57,9 +57,33 @@ class GoogleCalendarService {
     }
 
     /**
+     * Initialize OAuth client only (for getting auth URL)
+     */
+    async initializeOAuthClient() {
+        if (this.oauth2Client) return true;
+
+        try {
+            const credentialsExist = await fs.access(this.credentialsPath).then(() => true).catch(() => false);
+            if (!credentialsExist) {
+                throw new Error('Credentials file not found');
+            }
+
+            const credentials = JSON.parse(await fs.readFile(this.credentialsPath, 'utf8'));
+            const { client_id, client_secret, redirect_uris } = credentials.installed || credentials.web;
+
+            this.oauth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+            return true;
+        } catch (error) {
+            console.error('[Calendar] OAuth client init error:', error.message);
+            throw error;
+        }
+    }
+
+    /**
      * Get authorization URL for OAuth flow
      */
-    getAuthUrl() {
+    async getAuthUrl() {
+        await this.initializeOAuthClient();
         const scopes = ['https://www.googleapis.com/auth/calendar.readonly'];
         return this.oauth2Client.generateAuthUrl({
             access_type: 'offline',

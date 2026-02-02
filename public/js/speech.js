@@ -19,7 +19,8 @@ class SpeechManager {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         
         if (!SpeechRecognition) {
-            console.warn('Speech recognition not supported');
+            console.warn('Speech recognition not supported in this browser');
+            this.updateMicButtonDisabled();
             return;
         }
 
@@ -27,6 +28,8 @@ class SpeechManager {
         this.recognition.continuous = false;
         this.recognition.interimResults = true;
         this.recognition.lang = 'en-US';
+        
+        console.log('Speech recognition initialized successfully');
 
         this.recognition.onstart = () => {
             this.isListening = true;
@@ -105,14 +108,23 @@ class SpeechManager {
     // STT Controls
     toggleListening() {
         if (!this.recognition) {
-            alert('Speech recognition not supported in this browser. Try Chrome or Edge.');
+            alert('Speech recognition not supported in this browser.\n\nSupported browsers:\n• Chrome/Edge (recommended)\n• Safari on macOS/iOS\n\nNot supported:\n• Firefox (limited support)\n• Older browsers');
             return;
         }
 
         if (this.isListening) {
             this.recognition.stop();
         } else {
-            this.recognition.start();
+            try {
+                this.recognition.start();
+            } catch (error) {
+                console.error('Failed to start speech recognition:', error);
+                if (error.name === 'NotAllowedError') {
+                    alert('Microphone access denied.\n\nPlease:\n1. Click the 🔒 lock icon in your browser address bar\n2. Allow microphone access\n3. Reload the page and try again');
+                } else {
+                    alert('Could not start microphone: ' + error.message);
+                }
+            }
         }
     }
 
@@ -124,11 +136,23 @@ class SpeechManager {
             micBtn.innerHTML = '🔴';
             micBtn.classList.add('bg-red-600', 'animate-pulse');
             micBtn.classList.remove('bg-slate-700');
+            micBtn.title = 'Listening... (Click to stop)';
         } else {
             micBtn.innerHTML = '🎤';
             micBtn.classList.remove('bg-red-600', 'animate-pulse');
             micBtn.classList.add('bg-slate-700');
+            micBtn.title = 'Click to speak (Speech-to-text)';
         }
+    }
+
+    updateMicButtonDisabled() {
+        const micBtn = document.getElementById('mic-btn');
+        if (!micBtn) return;
+
+        micBtn.innerHTML = '🎤';
+        micBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        micBtn.title = 'Speech recognition not supported in this browser. Try Chrome or Edge.';
+        micBtn.disabled = true;
     }
 
     // TTS Controls
@@ -225,7 +249,32 @@ class SpeechManager {
 // Initialize global speech manager
 window.speechManager = null;
 
+// Diagnostic function
+function checkSpeechSupport() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const hasSpeechSynthesis = 'speechSynthesis' in window;
+    
+    console.log('=== Speech Support Diagnostic ===');
+    console.log('Speech Recognition:', SpeechRecognition ? '✅ Supported' : '❌ Not supported');
+    console.log('Speech Synthesis (TTS):', hasSpeechSynthesis ? '✅ Supported' : '❌ Not supported');
+    console.log('Browser:', navigator.userAgent);
+    console.log('HTTPS:', window.location.protocol === 'https:' ? '✅ Yes' : '⚠️ No (required for microphone)');
+    console.log('================================');
+    
+    return {
+        recognitionSupported: !!SpeechRecognition,
+        synthesisSupported: hasSpeechSynthesis,
+        isSecure: window.location.protocol === 'https:' || window.location.hostname === 'localhost'
+    };
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
+    const support = checkSpeechSupport();
     window.speechManager = new SpeechManager();
+    
+    // Show warning if not on HTTPS (except localhost)
+    if (!support.isSecure && support.recognitionSupported) {
+        console.warn('⚠️ Microphone access requires HTTPS or localhost');
+    }
 });

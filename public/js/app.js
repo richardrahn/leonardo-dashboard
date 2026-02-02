@@ -171,6 +171,11 @@ function updateConnectionStatus(status) {
     }
 }
 
+// Close chat and return to dashboard
+function closeChat() {
+    showView('dashboard');
+}
+
 // View management
 function showView(view) {
     // Hide all views
@@ -205,9 +210,16 @@ function showView(view) {
         case 'chat':
             const chatMessages = document.getElementById('chat-messages');
             if (chatMessages) {
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+                setTimeout(() => {
+                    chatMessages.scrollTop = chatMessages.scrollHeight + 100;
+                }, 10);
             }
             document.getElementById('chat-input')?.focus();
+            break;
+        case 'action-items':
+            if (typeof loadActionItems === 'function') {
+                loadActionItems();
+            }
             break;
         case 'memory':
             loadMemoryFiles();
@@ -223,6 +235,9 @@ function showView(view) {
             break;
         case 'gmail':
             loadGmail();
+            break;
+        case 'monitoring':
+            loadMonitoring();
             break;
     }
 }
@@ -416,4 +431,38 @@ function updateThemeUI(theme) {
         icon.textContent = '🌙';
         text.textContent = 'Dark Mode';
     }
+}
+
+// Knowledge Base quick access
+function openKnowledgeFile(filePath) {
+    console.log('Opening knowledge file:', filePath);
+    
+    // Switch to files view first
+    showView('files');
+    
+    // Wait for view to load, then navigate to the directory and view the file
+    setTimeout(() => {
+        if (typeof viewFile === 'function') {
+            // Extract directory path
+            const dir = filePath.split('/').slice(0, -1).join('/');
+            
+            // Load the directory first (this initializes the file browser)
+            if (typeof loadFiles === 'function' && dir) {
+                loadFiles(dir).then(() => {
+                    // Then view the specific file
+                    setTimeout(() => viewFile(filePath), 100);
+                }).catch(err => {
+                    console.error('Failed to load directory:', err);
+                    // Try to view file directly anyway
+                    viewFile(filePath);
+                });
+            } else {
+                // No directory or loadFiles not available, try direct view
+                viewFile(filePath);
+            }
+        } else {
+            console.error('viewFile function not available');
+            showToast('Failed to open file - try navigating via Files view', 'error');
+        }
+    }, 300);
 }

@@ -2,7 +2,7 @@
 
 async function loadSettings() {
     try {
-        const settings = await apiCall('/api/settings/gmail');
+        const settings = await apiCall('/api/gmail/settings');
         
         // Populate form
         document.getElementById('whatsapp-enabled').checked = settings.notifications?.whatsapp?.enabled || false;
@@ -48,7 +48,7 @@ async function saveSettings() {
             }
         };
 
-        await apiCall('/api/settings/gmail', {
+        await apiCall('/api/gmail/settings', {
             method: 'POST',
             body: JSON.stringify(settings)
         });

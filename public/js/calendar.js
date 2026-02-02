@@ -17,6 +17,7 @@ async function initializeCalendar() {
     
     if (!status.ready) {
         console.log('[Calendar] Not configured or authorized');
+        showCalendarNotConfigured();
         return false;
     }
 
@@ -27,6 +28,36 @@ async function initializeCalendar() {
     calendarRefreshInterval = setInterval(refreshCalendarData, 5 * 60 * 1000);
 
     return true;
+}
+
+/**
+ * Show "not configured" state in calendar widgets
+ */
+function showCalendarNotConfigured() {
+    // Next Meeting Card
+    const nextMeetingCard = document.getElementById('next-meeting-card');
+    if (nextMeetingCard) {
+        nextMeetingCard.innerHTML = `
+            <div class="text-center text-slate-500 py-4 text-sm">
+                <div class="mb-2">📅</div>
+                <div>Calendar not configured</div>
+                <a href="https://github.com/clawdbot/clawdbot" target="_blank" class="text-blue-400 hover:underline text-xs mt-1 inline-block">
+                    Setup guide
+                </a>
+            </div>
+        `;
+    }
+
+    // Today's Schedule
+    const todayEvents = document.getElementById('calendar-today-events');
+    if (todayEvents) {
+        todayEvents.innerHTML = `
+            <div class="text-center text-slate-500 py-4 text-sm">
+                <div class="mb-2">📅</div>
+                <div>Calendar not configured</div>
+            </div>
+        `;
+    }
 }
 
 /**

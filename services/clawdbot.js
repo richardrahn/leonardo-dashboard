@@ -83,13 +83,13 @@ class ClawdbotService extends EventEmitter {
                     minProtocol: 3,
                     maxProtocol: 3,
                     client: {
-                        id: 'cli',
+                        id: 'leonardo-dashboard',
                         version: '1.0.0',
                         platform: 'linux',
-                        mode: 'operator'
+                        mode: 'interactive'
                     },
-                    role: 'operator',
-                    scopes: ['operator.read', 'operator.write'],
+                    role: 'client',
+                    scopes: [],
                     caps: [],
                     commands: [],
                     permissions: {},

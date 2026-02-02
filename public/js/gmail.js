@@ -4,18 +4,18 @@ let gmailData = null;
 
 async function loadGmail() {
     try {
-        // Fetch Gmail status from the backend
-        const response = await fetch('http://localhost:8080/gmail-status.json?' + Date.now());
+        // Fetch Gmail status from Leonardo's API
+        const response = await apiCall('/api/gmail/status');
         
-        if (!response.ok) {
+        if (!response) {
             throw new Error('Failed to fetch Gmail data');
         }
         
-        gmailData = await response.json();
+        gmailData = response;
         displayGmailData();
     } catch (error) {
         console.error('Error loading Gmail:', error);
-        showGmailError('Unable to load Gmail data. Make sure the Gmail triage service is running.');
+        showGmailError('Unable to load Gmail data. Check console for details.');
     }
 }
 
@@ -84,14 +84,41 @@ function showGmailError(message) {
 }
 
 function refreshGmail() {
-    const btn = event.target;
-    btn.disabled = true;
-    btn.textContent = '⏳ Refreshing...';
+    loadGmail();
+}
+
+async function checkGmailNow() {
+    const btn = document.getElementById('gmail-check-btn');
+    const originalText = btn.textContent;
     
-    loadGmail().finally(() => {
+    btn.disabled = true;
+    btn.textContent = '⏳ Checking...';
+    
+    try {
+        // Trigger a fresh check via Leonardo's API
+        const result = await apiCall('/api/gmail/check', { method: 'POST' });
+        
+        if (!result || !result.success) {
+            throw new Error(result?.message || 'Failed to check Gmail');
+        }
+        
+        // Update display with new data
+        gmailData = result;
+        displayGmailData();
+        
+        if (result.high > 0) {
+            showToast(`Found ${result.total} unread emails (${result.high} high priority)`, 'success');
+        } else {
+            showToast('Inbox checked - all clear!', 'success');
+        }
+        
+    } catch (error) {
+        console.error('Error checking Gmail:', error);
+        showToast('Failed to check Gmail: ' + error.message, 'error');
+    } finally {
         btn.disabled = false;
-        btn.textContent = '🔄 Refresh';
-    });
+        btn.textContent = originalText;
+    }
 }
 
 function escapeHtml(text) {

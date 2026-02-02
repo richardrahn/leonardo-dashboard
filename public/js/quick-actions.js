@@ -48,8 +48,8 @@ const quickActions = [
     {
         id: 'chat-leo',
         icon: '💬',
-        label: 'Ask Leonardo',
-        description: 'Quick chat',
+        label: 'Chat',
+        description: 'Talk to Leonardo',
         action: () => showView('chat'),
         category: 'assistant'
     },

@@ -27,7 +27,7 @@ router.get('/status', async (req, res) => {
  */
 router.get('/auth-url', async (req, res) => {
     try {
-        const url = calendarService.getAuthUrl();
+        const url = await calendarService.getAuthUrl();
         res.json({ url });
     } catch (error) {
         res.status(500).json({ error: error.message });

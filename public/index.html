@@ -59,6 +59,9 @@
                 <button onclick="showView('tasks')" data-view="tasks" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
                     <span>✅</span> <span>Tasks</span>
                 </button>
+                <button onclick="showView('action-items')" data-view="action-items" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
+                    <span>📋</span> <span>Action Items</span>
+                </button>
                 <button onclick="showView('gmail')" data-view="gmail" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
                     <span>📧</span> <span>Gmail</span>
                 </button>
@@ -73,6 +76,9 @@
                 </button>
                 <button onclick="showView('files')" data-view="files" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
                     <span>📁</span> <span>Files</span>
+                </button>
+                <button onclick="showView('monitoring')" data-view="monitoring" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
+                    <span>📊</span> <span>Monitoring</span>
                 </button>
 
                 <div class="border-t border-slate-700 my-3"></div>
@@ -104,7 +110,7 @@
         <main class="flex-1 flex flex-col overflow-hidden bg-slate-900">
 
             <!-- Dashboard View -->
-            <div id="dashboard-view" class="view flex-1 flex flex-col overflow-y-auto hidden">
+            <div id="dashboard-view" class="view flex-1 flex flex-col overflow-y-auto">
                 <div class="p-6 max-w-7xl mx-auto w-full">
                     <!-- Header -->
                     <div class="mb-8">
@@ -129,10 +135,10 @@
                             <div class="text-3xl font-bold mt-1" id="stat-completed">-</div>
                             <div class="text-emerald-100 text-xs mt-2">Tasks done</div>
                         </div>
-                        <div class="stat-card bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl p-5">
-                            <div class="text-purple-100 text-sm font-medium">Messages</div>
-                            <div class="text-3xl font-bold mt-1" id="stat-messages">-</div>
-                            <div class="text-purple-100 text-xs mt-2">Today</div>
+                        <div class="stat-card bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl p-5">
+                            <div class="text-emerald-100 text-sm font-medium">Knowledge Base</div>
+                            <div class="text-3xl font-bold mt-1">183K</div>
+                            <div class="text-emerald-100 text-xs mt-2">Words of Lean expertise</div>
                         </div>
                     </div>
 
@@ -232,6 +238,74 @@
                             <!-- Quick actions will be rendered here -->
                         </div>
                     </div>
+
+                    <!-- Lean Expertise Knowledge Base -->
+                    <div class="mt-8 bg-gradient-to-br from-green-600/20 to-emerald-600/20 rounded-xl p-6 border border-green-500/30">
+                        <h3 class="font-semibold mb-4 flex items-center gap-2">
+                            <span>📚</span> Lean Expertise Knowledge Base
+                        </h3>
+                        <p class="text-slate-300 mb-4 text-sm">
+                            Comprehensive analysis of Flow Publishing books (183,000 words) with formulas, concepts, and product development insights.
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <button onclick="openKnowledgeFile('memory/lean-expertise/README.md')"
+                               class="flex items-center gap-3 p-3 bg-slate-800/60 hover:bg-slate-700/60 rounded-lg transition border border-slate-600/50 text-left">
+                                <span class="text-2xl">📖</span>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium text-sm">Start Here</div>
+                                    <div class="text-xs text-slate-400">Navigation guide</div>
+                                </div>
+                            </button>
+                            <button onclick="openKnowledgeFile('memory/lean-expertise/mixed-model-line-design/summary.md')"
+                               class="flex items-center gap-3 p-3 bg-slate-800/60 hover:bg-slate-700/60 rounded-lg transition border border-slate-600/50 text-left">
+                                <span class="text-2xl">🏭</span>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium text-sm">Line Design Summary</div>
+                                    <div class="text-xs text-slate-400">Book analysis</div>
+                                </div>
+                            </button>
+                            <button onclick="openKnowledgeFile('memory/lean-expertise/mixed-model-line-design/key-concepts.md')"
+                               class="flex items-center gap-3 p-3 bg-slate-800/60 hover:bg-slate-700/60 rounded-lg transition border border-slate-600/50 text-left">
+                                <span class="text-2xl">💡</span>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium text-sm">Line Design Concepts</div>
+                                    <div class="text-xs text-slate-400">Key formulas & methods</div>
+                                </div>
+                            </button>
+                            <button onclick="openKnowledgeFile('memory/lean-expertise/material-flow/summary.md')"
+                               class="flex items-center gap-3 p-3 bg-slate-800/60 hover:bg-slate-700/60 rounded-lg transition border border-slate-600/50 text-left">
+                                <span class="text-2xl">🚚</span>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium text-sm">Material Flow Summary</div>
+                                    <div class="text-xs text-slate-400">Book analysis</div>
+                                </div>
+                            </button>
+                            <button onclick="openKnowledgeFile('memory/lean-expertise/material-flow/key-concepts.md')"
+                               class="flex items-center gap-3 p-3 bg-slate-800/60 hover:bg-slate-700/60 rounded-lg transition border border-slate-600/50 text-left">
+                                <span class="text-2xl">💡</span>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium text-sm">Material Flow Concepts</div>
+                                    <div class="text-xs text-slate-400">PFEP, Kanban, Routes</div>
+                                </div>
+                            </button>
+                            <button onclick="openKnowledgeFile('memory/lean-expertise/formulas-reference.md')"
+                               class="flex items-center gap-3 p-3 bg-slate-800/60 hover:bg-slate-700/60 rounded-lg transition border border-slate-600/50 text-left">
+                                <span class="text-2xl">🧮</span>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium text-sm">All Formulas</div>
+                                    <div class="text-xs text-slate-400">30+ with examples</div>
+                                </div>
+                            </button>
+                            <button onclick="openKnowledgeFile('memory/lean-expertise/ezbelta-insights.md')"
+                               class="flex items-center gap-3 p-3 bg-gradient-to-br from-amber-600/30 to-orange-600/30 hover:from-amber-600/40 hover:to-orange-600/40 rounded-lg transition border border-amber-500/50 text-left">
+                                <span class="text-2xl">🎯</span>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium text-sm">Product Development Insights</div>
+                                    <div class="text-xs text-amber-200">5 products • $2M-$23M revenue</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -265,6 +339,10 @@
                         <button onclick="clearChat()" class="text-sm text-slate-400 hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-slate-700">
                             🗑️ Clear
                         </button>
+                        <div class="border-l border-slate-600 h-6"></div>
+                        <button onclick="closeChat()" class="text-sm bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg transition font-semibold" title="Close chat">
+                            ✕ Close
+                        </button>
                     </div>
                 </div>
 
@@ -275,6 +353,18 @@
                 </div>
 
                 <div class="p-4 border-t border-slate-700 bg-slate-800/50">
+                    <div id="file-preview" class="hidden mb-3 max-w-4xl mx-auto">
+                        <div class="bg-slate-700 rounded-lg p-3 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">📎</span>
+                                <div>
+                                    <div id="file-preview-name" class="font-medium"></div>
+                                    <div id="file-preview-size" class="text-xs text-slate-400"></div>
+                                </div>
+                            </div>
+                            <button onclick="clearFileUpload()" class="text-red-400 hover:text-red-300 px-2">✕</button>
+                        </div>
+                    </div>
                     <div class="flex gap-3 max-w-4xl mx-auto">
                         <button 
                             id="mic-btn" 
@@ -284,10 +374,24 @@
                         >
                             🎤
                         </button>
+                        <input 
+                            type="file" 
+                            id="file-input" 
+                            class="hidden" 
+                            onchange="handleFileSelect(event)"
+                            accept=".pdf,.doc,.docx,.txt,.md,.csv,.xlsx,.xls,.png,.jpg,.jpeg,.gif,.webp"
+                        >
+                        <button 
+                            onclick="document.getElementById('file-input').click()" 
+                            class="bg-slate-700 hover:bg-slate-600 px-4 py-3 rounded-xl font-semibold transition"
+                            title="Upload document or image"
+                        >
+                            📎
+                        </button>
                         <input
                             type="text"
                             id="chat-input"
-                            placeholder="Type or click mic to speak..."
+                            placeholder="Type, attach file, or click mic to speak..."
                             class="flex-1 bg-slate-800 rounded-xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-primary border border-slate-600"
                             onkeypress="handleChatKeypress(event)"
                         >
@@ -388,12 +492,12 @@
                     </h2>
                     <div class="flex items-center gap-2">
                         <span id="gmail-last-check" class="text-xs text-slate-400 mr-3"></span>
-                        <button onclick="refreshGmail()" class="px-4 py-2 bg-primary hover:bg-primary-hover rounded-lg transition text-sm">
-                            🔄 Refresh
+                        <button onclick="checkGmailNow()" id="gmail-check-btn" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition text-sm font-semibold">
+                            🔄 Check Now
                         </button>
-                        <a href="http://localhost:8080/settings.html" target="_blank" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition text-sm">
+                        <button onclick="showView('settings')" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition text-sm">
                             ⚙️ Settings
-                        </a>
+                        </button>
                     </div>
                 </div>
                 <div class="flex-1 overflow-y-auto p-6">
@@ -555,6 +659,109 @@
                 </div>
             </div>
 
+            <!-- Action Items View -->
+            <div id="action-items-view" class="view flex-1 flex flex-col hidden">
+                <div class="p-4 border-b border-slate-700 bg-slate-800/50">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold flex items-center gap-2">
+                            <span>✅</span> <span id="action-items-dept-name">Action Items</span>
+                        </h2>
+                        <button onclick="showNewActionItem()" 
+                            class="px-4 py-2 bg-primary hover:bg-primary-hover rounded-lg transition font-semibold">
+                            ➕ New Item
+                        </button>
+                    </div>
+                    
+                    <!-- Department Tabs -->
+                    <div class="flex gap-2 overflow-x-auto">
+                        <button class="dept-tab active" data-dept="strategic" onclick="switchDepartment('strategic')">
+                            📊 Strategic Planning
+                        </button>
+                        <button class="dept-tab" data-dept="marketing" onclick="switchDepartment('marketing')">
+                            📢 Branding & Marketing
+                        </button>
+                        <button class="dept-tab" data-dept="security" onclick="switchDepartment('security')">
+                            🔒 Security & Deployment
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Kanban Board -->
+                <div class="flex-1 overflow-x-auto p-4">
+                    <div class="flex gap-4 h-full" style="min-width: 1200px;">
+                        <!-- URGENT Column -->
+                        <div class="flex-1 min-w-0">
+                            <div class="bg-gradient-to-br from-red-600/20 to-red-600/10 rounded-t-xl px-4 py-3 border-b-2 border-red-500">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg">🔴</span>
+                                        <span class="font-semibold">URGENT</span>
+                                    </div>
+                                    <span id="items-urgent-count" class="px-2 py-1 bg-red-600/30 rounded-full text-xs">0</span>
+                                </div>
+                            </div>
+                            <div id="items-urgent-column" class="bg-slate-800/30 rounded-b-xl p-3 space-y-2 min-h-[400px]"></div>
+                        </div>
+
+                        <!-- THIS WEEK Column -->
+                        <div class="flex-1 min-w-0">
+                            <div class="bg-gradient-to-br from-amber-500/20 to-amber-500/10 rounded-t-xl px-4 py-3 border-b-2 border-amber-500">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg">🟡</span>
+                                        <span class="font-semibold">THIS WEEK</span>
+                                    </div>
+                                    <span id="items-this-week-count" class="px-2 py-1 bg-amber-600/30 rounded-full text-xs">0</span>
+                                </div>
+                            </div>
+                            <div id="items-this-week-column" class="bg-slate-800/30 rounded-b-xl p-3 space-y-2 min-h-[400px]"></div>
+                        </div>
+
+                        <!-- THIS MONTH Column -->
+                        <div class="flex-1 min-w-0">
+                            <div class="bg-gradient-to-br from-green-500/20 to-green-500/10 rounded-t-xl px-4 py-3 border-b-2 border-green-500">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg">🟢</span>
+                                        <span class="font-semibold">THIS MONTH</span>
+                                    </div>
+                                    <span id="items-this-month-count" class="px-2 py-1 bg-green-600/30 rounded-full text-xs">0</span>
+                                </div>
+                            </div>
+                            <div id="items-this-month-column" class="bg-slate-800/30 rounded-b-xl p-3 space-y-2 min-h-[400px]"></div>
+                        </div>
+
+                        <!-- FUTURE Column -->
+                        <div class="flex-1 min-w-0">
+                            <div class="bg-gradient-to-br from-blue-500/20 to-blue-500/10 rounded-t-xl px-4 py-3 border-b-2 border-blue-500">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg">🔵</span>
+                                        <span class="font-semibold">FUTURE</span>
+                                    </div>
+                                    <span id="items-future-count" class="px-2 py-1 bg-blue-600/30 rounded-full text-xs">0</span>
+                                </div>
+                            </div>
+                            <div id="items-future-column" class="bg-slate-800/30 rounded-b-xl p-3 space-y-2 min-h-[400px]"></div>
+                        </div>
+
+                        <!-- COMPLETED Column -->
+                        <div class="flex-1 min-w-0">
+                            <div class="bg-gradient-to-br from-emerald-500/20 to-emerald-500/10 rounded-t-xl px-4 py-3 border-b-2 border-emerald-500">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg">✅</span>
+                                        <span class="font-semibold">COMPLETED</span>
+                                    </div>
+                                    <span id="items-completed-count" class="px-2 py-1 bg-emerald-600/30 rounded-full text-xs">0</span>
+                                </div>
+                            </div>
+                            <div id="items-completed-column" class="bg-slate-800/30 rounded-b-xl p-3 space-y-2 min-h-[400px]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Settings View -->
             <div id="settings-view" class="view flex-1 flex flex-col hidden">
                 <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
@@ -647,6 +854,63 @@
                 </div>
             </div>
 
+            <!-- Monitoring View -->
+            <div id="monitoring-view" class="view flex-1 flex flex-col hidden">
+                <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <span>📊</span> System Monitoring
+                    </h2>
+                    <button onclick="refreshMonitoring()" class="text-sm text-slate-400 hover:text-white px-3 py-2 rounded-lg hover:bg-slate-700 transition">
+                        🔄 Refresh
+                    </button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-6">
+                    <div class="max-w-6xl mx-auto space-y-6">
+                        
+                        <!-- Overall Health Status -->
+                        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                <span id="health-icon">💚</span> System Health
+                            </h3>
+                            <div id="health-status" class="text-slate-400">Loading...</div>
+                        </div>
+
+                        <!-- Services Status -->
+                        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                            <h3 class="text-lg font-semibold mb-4">🔌 Services</h3>
+                            <div id="services-status" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="text-slate-400">Loading...</div>
+                            </div>
+                        </div>
+
+                        <!-- PM2 Process Info -->
+                        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                            <h3 class="text-lg font-semibold mb-4">⚙️ Server Process</h3>
+                            <div id="pm2-status" class="space-y-3">
+                                <div class="text-slate-400">Loading...</div>
+                            </div>
+                        </div>
+
+                        <!-- System Stats -->
+                        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                            <h3 class="text-lg font-semibold mb-4">💻 System Resources</h3>
+                            <div id="system-stats" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="text-slate-400">Loading...</div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Logs -->
+                        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                            <h3 class="text-lg font-semibold mb-4">📝 Recent Logs</h3>
+                            <div id="recent-logs" class="bg-slate-900 rounded-lg p-4 font-mono text-xs max-h-96 overflow-y-auto">
+                                <div class="text-slate-400">Loading...</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -660,6 +924,7 @@
     <script src="/js/chat.js"></script>
     <script src="/js/projects.js"></script>
     <script src="/js/tasks.js"></script>
+    <script src="/js/action-items.js"></script>
     <script src="/js/speech.js"></script>
     <script src="/js/dashboard.js"></script>
     <script src="/js/memory.js"></script>
@@ -671,6 +936,7 @@
     <script src="/js/weather.js"></script>
     <script src="/js/quick-actions.js"></script>
     <script src="/js/settings.js"></script>
+    <script src="/js/monitoring.js"></script>
     <script src="/js/app.js"></script>
 </body>
 </html>

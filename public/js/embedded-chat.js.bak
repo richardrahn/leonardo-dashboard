@@ -1,0 +1,261 @@
+// Embedded Chat Widget for Dashboard
+
+let chatWidgetState = 'closed'; // closed, half, full
+
+/**
+ * Initialize embedded chat widget
+ */
+function initEmbeddedChat() {
+    if (document.getElementById('embedded-chat-widget')) {
+        return; // Already initialized
+    }
+
+    const widget = document.createElement('div');
+    widget.id = 'embedded-chat-widget';
+    widget.className = 'fixed right-4 bottom-4 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-300 z-40 hidden';
+    widget.style.cssText = 'width: 400px; height: 500px;';
+    
+    widget.innerHTML = `
+        <div class="flex flex-col h-full">
+            <!-- Header -->
+            <div class="p-3 border-b border-slate-700 flex justify-between items-center bg-slate-800/50 rounded-t-xl">
+                <h3 class="font-semibold flex items-center gap-2">
+                    <span>💬</span> Chat with Leonardo
+                </h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleChatSize()" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-700 transition" title="Toggle size">
+                        <span id="chat-size-icon">⬜</span>
+                    </button>
+                    <button onclick="closeChatWidget()" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-700 transition" title="Close">
+                        ✕
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Messages -->
+            <div id="embedded-chat-messages" class="flex-1 overflow-y-auto p-3 space-y-3">
+                <div class="text-center text-slate-500 text-sm py-8">
+                    <span>💬</span>
+                    <p class="mt-2">Start chatting with Leonardo</p>
+                </div>
+            </div>
+            
+            <!-- Typing Indicator -->
+            <div id="embedded-typing-indicator" class="px-3 py-1 text-slate-400 text-sm hidden">
+                <span class="animate-pulse">Leonardo is typing...</span>
+            </div>
+            
+            <!-- Input -->
+            <div class="p-3 border-t border-slate-700">
+                <div class="flex gap-2">
+                    <input
+                        type="text"
+                        id="embedded-chat-input"
+                        placeholder="Type a message..."
+                        class="flex-1 bg-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary border border-slate-600"
+                        onkeypress="handleEmbeddedChatKeypress(event)"
+                    >
+                    <button onclick="sendEmbeddedMessage()" class="bg-primary hover:bg-primary-hover px-4 py-2 rounded-lg text-sm font-semibold transition">
+                        Send
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(widget);
+    loadEmbeddedChatHistory();
+}
+
+/**
+ * Show embedded chat widget
+ */
+function showChatWidget(size = 'half') {
+    initEmbeddedChat();
+    const widget = document.getElementById('embedded-chat-widget');
+    chatWidgetState = size;
+    
+    widget.classList.remove('hidden');
+    
+    if (size === 'half') {
+        widget.style.cssText = 'width: 400px; height: 50vh; max-height: 600px;';
+        document.getElementById('chat-size-icon').textContent = '⬛';
+    } else if (size === 'full') {
+        widget.style.cssText = 'width: 50vw; height: 80vh; max-width: 800px;';
+        document.getElementById('chat-size-icon').textContent = '⬜';
+    }
+    
+    setTimeout(() => {
+        document.getElementById('embedded-chat-input')?.focus();
+    }, 100);
+}
+
+/**
+ * Close chat widget
+ */
+function closeChatWidget() {
+    const widget = document.getElementById('embedded-chat-widget');
+    if (!widget) return;
+    
+    if (chatWidgetState === 'full') {
+        // From full to half
+        showChatWidget('half');
+    } else if (chatWidgetState === 'half') {
+        // From half to closed
+        widget.classList.add('hidden');
+        chatWidgetState = 'closed';
+    }
+}
+
+/**
+ * Toggle chat size
+ */
+function toggleChatSize() {
+    if (chatWidgetState === 'half') {
+        showChatWidget('full');
+    } else if (chatWidgetState === 'full') {
+        showChatWidget('half');
+    }
+}
+
+/**
+ * Handle Enter key in embedded chat
+ */
+function handleEmbeddedChatKeypress(event) {
+    if (event.key === 'Enter') {
+        sendEmbeddedMessage();
+    }
+}
+
+/**
+ * Send message from embedded chat
+ */
+async function sendEmbeddedMessage() {
+    const input = document.getElementById('embedded-chat-input');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Add user message to UI
+    appendEmbeddedMessage('user', message);
+    input.value = '';
+    input.disabled = true;
+    
+    // Show typing indicator
+    document.getElementById('embedded-typing-indicator').classList.remove('hidden');
+    
+    try {
+        // Send via socket
+        if (socket && socket.connected) {
+            socket.emit('chat:send', { message });
+        } else {
+            throw new Error('Not connected to server');
+        }
+    } catch (error) {
+        console.error('Failed to send message:', error);
+        showToast('Failed to send message', 'error');
+        input.disabled = false;
+    }
+}
+
+/**
+ * Append message to embedded chat
+ */
+function appendEmbeddedMessage(role, content, timestamp) {
+    const container = document.getElementById('embedded-chat-messages');
+    if (!container) return;
+    
+    // Remove welcome message if present
+    const welcome = container.querySelector('.text-center');
+    if (welcome) welcome.remove();
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${role}`;
+    
+    // Render markdown if assistant message
+    if (role === 'assistant' && window.marked) {
+        messageDiv.innerHTML = marked.parse(content);
+    } else {
+        messageDiv.textContent = content;
+    }
+    
+    if (timestamp) {
+        const timeDiv = document.createElement('div');
+        timeDiv.className = 'chat-timestamp';
+        timeDiv.textContent = new Date(timestamp).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit'
+        });
+        messageDiv.appendChild(timeDiv);
+    }
+    
+    container.appendChild(messageDiv);
+    container.scrollTop = container.scrollHeight;
+}
+
+/**
+ * Load embedded chat history
+ */
+async function loadEmbeddedChatHistory() {
+    try {
+        const response = await fetch('/api/chat/history', {
+            headers: { 'Authorization': `Bearer ${getToken()}` }
+        });
+        const messages = await response.json();
+        
+        const container = document.getElementById('embedded-chat-messages');
+        if (messages && messages.length > 0) {
+            container.innerHTML = '';
+            messages.slice(-20).forEach(msg => {
+                appendEmbeddedMessage(msg.role, msg.content, msg.timestamp);
+            });
+        }
+    } catch (error) {
+        console.error('Failed to load chat history:', error);
+    }
+}
+
+/**
+ * Update embedded chat with socket events
+ */
+function connectEmbeddedChatToSocket() {
+    if (!socket) return;
+    
+    socket.on('chat:message', (data) => {
+        appendEmbeddedMessage(data.role, data.content, data.timestamp);
+        document.getElementById('embedded-typing-indicator')?.classList.add('hidden');
+        document.getElementById('embedded-chat-input').disabled = false;
+    });
+    
+    socket.on('chat:typing', (data) => {
+        const indicator = document.getElementById('embedded-typing-indicator');
+        if (indicator) {
+            if (data.typing) {
+                indicator.classList.remove('hidden');
+            } else {
+                indicator.classList.add('hidden');
+            }
+        }
+    });
+}
+
+// Hide chat when leaving dashboard
+const originalShowView = window.showView;
+window.showView = function(view) {
+    originalShowView(view);
+    
+    if (view !== 'dashboard') {
+        // Hide chat widget when leaving dashboard
+        const widget = document.getElementById('embedded-chat-widget');
+        if (widget) {
+            widget.classList.add('hidden');
+        }
+    }
+};
+
+// Connect to socket events when ready
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        connectEmbeddedChatToSocket();
+    }, 1000);
+});

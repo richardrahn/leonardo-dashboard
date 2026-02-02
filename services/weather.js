@@ -1,9 +1,9 @@
 /**
  * Weather Service
- * Wrapper around Leonardo's weather skill for dashboard display
+ * Uses Open-Meteo API for weather data (no API key required)
  */
 
-const clawdbot = require('./clawdbot');
+const https = require('https');
 
 class WeatherService {
     constructor() {
@@ -11,6 +11,13 @@ class WeatherService {
             lastWeather: null,
             lastFetched: null,
             cacheDuration: 30 * 60 * 1000, // 30 minutes
+        };
+        
+        // Boulder, Colorado coordinates
+        this.location = {
+            name: 'Boulder, CO',
+            latitude: 40.0150,
+            longitude: -105.2705
         };
     }
 
@@ -26,27 +33,17 @@ class WeatherService {
             return this.cache.lastWeather;
         }
 
-        console.log('[Weather] Fetching fresh weather data...');
+        console.log('[Weather] Fetching fresh weather data from Open-Meteo...');
 
         try {
-            // Ask Leonardo for weather
-            const prompt = location
-                ? `What's the weather like in ${location}? Just give me the key details: temperature, conditions, and a brief forecast for the next few hours.`
-                : `What's the weather like? Just give me the key details: temperature, conditions, and a brief forecast for the next few hours.`;
+            const weatherData = await this.fetchOpenMeteo();
+            const weather = this.parseWeatherData(weatherData);
+            
+            // Cache the result
+            this.cache.lastWeather = weather;
+            this.cache.lastFetched = Date.now();
 
-            const response = await clawdbot.sendMessage(prompt);
-
-            if (response && response.message) {
-                const weather = this.parseWeatherResponse(response.message);
-                
-                // Cache the result
-                this.cache.lastWeather = weather;
-                this.cache.lastFetched = Date.now();
-
-                return weather;
-            } else {
-                throw new Error('No weather response from Leonardo');
-            }
+            return weather;
         } catch (error) {
             console.error('[Weather] Fetch failed:', error.message);
             return this.getFallbackWeather();
@@ -54,71 +51,139 @@ class WeatherService {
     }
 
     /**
-     * Parse Leonardo's weather response
+     * Fetch weather from Open-Meteo API
      */
-    parseWeatherResponse(message) {
-        // Try to extract key information from the response
-        // This is basic parsing - Leonardo's response should be structured enough
-        
-        const tempMatch = message.match(/(\d+)°([CF])/i);
-        const temp = tempMatch ? `${tempMatch[1]}°${tempMatch[2]}` : null;
+    fetchOpenMeteo() {
+        return new Promise((resolve, reject) => {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${this.location.latitude}&longitude=${this.location.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America/Denver`;
 
-        // Try to detect condition keywords
-        let condition = 'Unknown';
-        let emoji = '🌤️';
-        const lowerMsg = message.toLowerCase();
+            https.get(url, (res) => {
+                let data = '';
+
+                res.on('data', (chunk) => {
+                    data += chunk;
+                });
+
+                res.on('end', () => {
+                    try {
+                        const json = JSON.parse(data);
+                        resolve(json);
+                    } catch (error) {
+                        reject(new Error('Failed to parse weather data'));
+                    }
+                });
+            }).on('error', (error) => {
+                reject(error);
+            });
+        });
+    }
+
+    /**
+     * Parse Open-Meteo weather data
+     */
+    parseWeatherData(data) {
+        const current = data.current;
+        const temp = Math.round(current.temperature_2m);
+        const feelsLike = Math.round(current.apparent_temperature);
+        const weatherCode = current.weather_code;
+        const windSpeed = Math.round(current.wind_speed_10m);
         
-        if (lowerMsg.includes('sunny') || lowerMsg.includes('clear')) {
-            condition = 'Sunny';
-            emoji = '☀️';
-        } else if (lowerMsg.includes('cloud')) {
-            condition = 'Cloudy';
-            emoji = '☁️';
-        } else if (lowerMsg.includes('rain')) {
-            condition = 'Rainy';
-            emoji = '🌧️';
-        } else if (lowerMsg.includes('snow')) {
-            condition = 'Snowy';
-            emoji = '❄️';
-        } else if (lowerMsg.includes('storm') || lowerMsg.includes('thunder')) {
-            condition = 'Stormy';
-            emoji = '⛈️';
-        } else if (lowerMsg.includes('partly')) {
-            condition = 'Partly Cloudy';
-            emoji = '⛅';
-        }
+        const condition = this.getConditionFromCode(weatherCode);
+        const emoji = this.getEmojiFromCode(weatherCode);
+        const suggestion = this.generateSuggestion(temp, weatherCode, windSpeed);
 
         return {
             success: true,
-            temperature: temp,
+            temperature: `${temp}°F`,
+            feelsLike: `${feelsLike}°F`,
             condition: condition,
             emoji: emoji,
-            fullDescription: message,
-            suggestion: this.generateSuggestion(message),
+            windSpeed: `${windSpeed} mph`,
+            humidity: `${current.relative_humidity_2m}%`,
+            fullDescription: `${temp}°F and ${condition.toLowerCase()} in ${this.location.name}. Feels like ${feelsLike}°F.`,
+            suggestion: suggestion,
             fetchedAt: Date.now(),
         };
     }
 
     /**
-     * Generate outfit/activity suggestion based on weather
+     * Convert WMO weather code to condition string
      */
-    generateSuggestion(weatherDescription) {
-        const lower = weatherDescription.toLowerCase();
+    getConditionFromCode(code) {
+        const conditions = {
+            0: 'Clear',
+            1: 'Mostly Clear',
+            2: 'Partly Cloudy',
+            3: 'Overcast',
+            45: 'Foggy',
+            48: 'Foggy',
+            51: 'Light Drizzle',
+            53: 'Drizzle',
+            55: 'Heavy Drizzle',
+            61: 'Light Rain',
+            63: 'Rain',
+            65: 'Heavy Rain',
+            71: 'Light Snow',
+            73: 'Snow',
+            75: 'Heavy Snow',
+            77: 'Snow Grains',
+            80: 'Light Showers',
+            81: 'Showers',
+            82: 'Heavy Showers',
+            85: 'Light Snow Showers',
+            86: 'Snow Showers',
+            95: 'Thunderstorm',
+            96: 'Thunderstorm with Hail',
+            99: 'Heavy Thunderstorm'
+        };
+        return conditions[code] || 'Unknown';
+    }
 
-        if (lower.includes('rain') || lower.includes('storm')) {
+    /**
+     * Get emoji for weather code
+     */
+    getEmojiFromCode(code) {
+        if (code === 0) return '☀️';
+        if (code <= 2) return '🌤️';
+        if (code === 3) return '☁️';
+        if (code >= 45 && code <= 48) return '🌫️';
+        if (code >= 51 && code <= 55) return '🌦️';
+        if (code >= 61 && code <= 67) return '🌧️';
+        if (code >= 71 && code <= 77) return '❄️';
+        if (code >= 80 && code <= 82) return '🌧️';
+        if (code >= 85 && code <= 86) return '🌨️';
+        if (code >= 95) return '⛈️';
+        return '🌤️';
+    }
+
+    /**
+     * Generate outfit/activity suggestion
+     */
+    generateSuggestion(temp, weatherCode, windSpeed) {
+        // Rain/snow conditions
+        if (weatherCode >= 61 && weatherCode <= 67) {
             return '☔ Bring an umbrella';
-        } else if (lower.includes('cold') || lower.includes('freez')) {
+        }
+        if (weatherCode >= 71 && weatherCode <= 86) {
+            return '⛄ Watch for ice and snow';
+        }
+        if (weatherCode >= 95) {
+            return '⚠️ Stay safe - thunderstorms';
+        }
+
+        // Temperature-based
+        if (temp < 32) {
+            return '🧥 Bundle up - freezing temps';
+        } else if (temp < 45) {
             return '🧥 Dress warm';
-        } else if (lower.includes('hot') || lower.includes('warm')) {
+        } else if (temp < 60) {
+            return '👕 Light jacket weather';
+        } else if (temp < 75) {
+            return '😎 Perfect weather!';
+        } else if (temp < 85) {
             return '🕶️ Stay hydrated';
-        } else if (lower.includes('snow')) {
-            return '⛄ Watch for ice';
-        } else if (lower.includes('sunny') || lower.includes('clear')) {
-            return '😎 Great day for a walk';
-        } else if (lower.includes('wind')) {
-            return '🍃 Windproof jacket';
         } else {
-            return '🌤️ Have a great day';
+            return '♨️ Hot! Stay cool & hydrated';
         }
     }
 

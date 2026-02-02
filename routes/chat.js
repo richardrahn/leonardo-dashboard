@@ -1,8 +1,35 @@
 const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const db = require('../database/db');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadDir = path.join(process.cwd(), '../uploads');
+        // Create uploads directory if it doesn't exist
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        // Create unique filename with timestamp
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    limits: {
+        fileSize: 10 * 1024 * 1024 // 10MB limit
+    }
+});
 
 // Get chat history
 router.get('/history', auth, (req, res) => {
@@ -72,6 +99,29 @@ router.get('/export', auth, (req, res) => {
     } catch (error) {
         console.error('Failed to export chat:', error);
         res.status(500).json({ error: 'Export failed' });
+    }
+});
+
+// Upload file
+router.post('/upload', auth, upload.single('file'), (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        const filePath = path.join('../uploads', req.file.filename);
+        
+        db.logActivity('file_uploaded', `File uploaded: ${req.file.originalname}`);
+        
+        res.json({
+            success: true,
+            path: filePath,
+            filename: req.file.originalname,
+            size: req.file.size
+        });
+    } catch (error) {
+        console.error('File upload error:', error);
+        res.status(500).json({ error: 'Upload failed' });
     }
 });
 
