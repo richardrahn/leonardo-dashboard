@@ -6,7 +6,12 @@ let itemSortables = [];
 const DEPARTMENTS = {
     'strategic': { name: 'Strategic Planning', icon: '📊', file: 'ezbelta/departments/strategic-planning/ACTION-ITEMS.md' },
     'marketing': { name: 'Branding & Marketing', icon: '📢', file: 'ezbelta/departments/branding-marketing/ACTION-ITEMS.md' },
-    'security': { name: 'Security & Deployment', icon: '🔒', file: 'ezbelta/departments/security-deployment/ACTION-ITEMS.md' }
+    'security': { name: 'Security & Deployment', icon: '🔒', file: 'ezbelta/departments/security-deployment/ACTION-ITEMS.md' },
+    'finance': { name: 'Finance & Accounting', icon: '💰', file: 'departments/finance/ACTION-ITEMS.md' },
+    'product': { name: 'Product Development', icon: '🚀', file: 'departments/product/ACTION-ITEMS.md' },
+    'operations': { name: 'Operations', icon: '⚙️', file: 'departments/operations/ACTION-ITEMS.md' },
+    'sales': { name: 'Sales & Growth', icon: '📈', file: 'departments/sales-marketing/ACTION-ITEMS.md' },
+    'support': { name: 'Customer Support', icon: '🎧', file: 'departments/customer-support/ACTION-ITEMS.md' }
 };
 
 const PRIORITIES = {
@@ -66,6 +71,60 @@ async function initializeActionItems() {
         { id: 203, department: 'security', priority: 'this-week', title: 'Choose Hosting Platform', description: 'Blocks deployment of all products', timeEstimate: '30 min', completed: false, notes: '', chatHistory: [] },
         { id: 204, department: 'security', priority: 'this-week', title: 'Define Authentication Strategy', description: 'Every app needs user login', timeEstimate: '20 min', completed: false, notes: '', chatHistory: [] },
         { id: 205, department: 'security', priority: 'this-month', title: 'Database Architecture Decision', description: 'Critical for multi-tenant scalability', timeEstimate: '60 min', completed: false, notes: '', chatHistory: [] }
+    );
+    
+    // Finance & Accounting items
+    items.push(
+        { id: 301, department: 'finance', priority: 'urgent', title: 'Set Up Stripe Account', description: 'Required to accept customer payments', timeEstimate: '30 min', completed: false, notes: '', chatHistory: [] },
+        { id: 302, department: 'finance', priority: 'this-week', title: 'Research Accounting Software', description: 'QuickBooks vs. Wave vs. FreshBooks', timeEstimate: '45 min', completed: false, notes: '', chatHistory: [] },
+        { id: 303, department: 'finance', priority: 'this-week', title: 'Create Invoice Templates', description: 'Professional templates for future billing', timeEstimate: '20 min', completed: false, notes: '', chatHistory: [] },
+        { id: 304, department: 'finance', priority: 'this-month', title: 'Define Pricing Strategy', description: 'Finalize pricing tiers and annual discounts', timeEstimate: '60 min', completed: false, notes: '', chatHistory: [] },
+        { id: 305, department: 'finance', priority: 'this-month', title: 'Set Up Expense Tracking', description: 'Track monthly infrastructure and marketing costs', timeEstimate: '30 min', completed: false, notes: '', chatHistory: [] },
+        { id: 306, department: 'finance', priority: 'future', title: 'Plan Quarterly Tax Estimates', description: 'When revenue starts flowing', timeEstimate: '30 min', completed: false, notes: '', chatHistory: [] }
+    );
+    
+    // Product Development items
+    items.push(
+        { id: 401, department: 'product', priority: 'urgent', title: 'Complete Leonardo Dashboard v1.0', description: 'Finish Gmail integration and mobile responsiveness', timeEstimate: '2 hours', completed: false, notes: '', chatHistory: [] },
+        { id: 402, department: 'product', priority: 'urgent', title: 'Fix Chat Scroll Behavior', description: 'Ensure smooth user experience', timeEstimate: '30 min', completed: false, notes: '', chatHistory: [] },
+        { id: 403, department: 'product', priority: 'this-week', title: 'Conduct VSM Tool Market Research', description: 'Analyze competitors and identify gaps', timeEstimate: '2 hours', completed: false, notes: '', chatHistory: [] },
+        { id: 404, department: 'product', priority: 'this-week', title: 'Draft Value Stream Mapper Spec', description: 'Define features and user flows', timeEstimate: '90 min', completed: false, notes: '', chatHistory: [] },
+        { id: 405, department: 'product', priority: 'this-month', title: 'Prototype A3 Problem Solving Tool', description: 'Initial concept and wireframes', timeEstimate: '3 hours', completed: false, notes: '', chatHistory: [] },
+        { id: 406, department: 'product', priority: 'this-month', title: 'Add Automated Testing Suite', description: 'Reduce technical debt', timeEstimate: '4 hours', completed: false, notes: '', chatHistory: [] },
+        { id: 407, department: 'product', priority: 'future', title: 'Plan Voice Commands Feature', description: 'User-requested enhancement for Q2', timeEstimate: '60 min', completed: false, notes: '', chatHistory: [] }
+    );
+    
+    // Operations items
+    items.push(
+        { id: 501, department: 'operations', priority: 'urgent', title: 'Purchase Domain (ezbelta.com)', description: 'Secure the domain before launch', timeEstimate: '15 min', completed: false, notes: '', chatHistory: [] },
+        { id: 502, department: 'operations', priority: 'this-week', title: 'Choose Cloud Provider', description: 'DigitalOcean, AWS, or Railway for hosting', timeEstimate: '45 min', completed: false, notes: '', chatHistory: [] },
+        { id: 503, department: 'operations', priority: 'this-week', title: 'Create Production Deployment Plan', description: 'Document step-by-step deployment process', timeEstimate: '60 min', completed: false, notes: '', chatHistory: [] },
+        { id: 504, department: 'operations', priority: 'this-month', title: 'Migrate SQLite to PostgreSQL', description: 'Required for production scalability', timeEstimate: '3 hours', completed: false, notes: '', chatHistory: [] },
+        { id: 505, department: 'operations', priority: 'this-month', title: 'Set Up Monitoring & Alerts', description: 'UptimeRobot or Sentry for system health', timeEstimate: '90 min', completed: false, notes: '', chatHistory: [] },
+        { id: 506, department: 'operations', priority: 'this-month', title: 'Configure SSL/HTTPS', description: 'Security essential for production', timeEstimate: '30 min', completed: false, notes: '', chatHistory: [] },
+        { id: 507, department: 'operations', priority: 'future', title: 'Implement Backup Strategy', description: 'Daily database backups + off-site storage', timeEstimate: '60 min', completed: false, notes: '', chatHistory: [] }
+    );
+    
+    // Sales & Growth items
+    items.push(
+        { id: 601, department: 'sales', priority: 'urgent', title: 'Finalize Webinar Date', description: 'Choose specific date and time - needed ASAP', timeEstimate: '10 min', completed: false, notes: '', chatHistory: [] },
+        { id: 602, department: 'sales', priority: 'urgent', title: 'Send Webinar Invitations', description: 'To existing Lean Design Studio audience', timeEstimate: '30 min', completed: false, notes: '', chatHistory: [] },
+        { id: 603, department: 'sales', priority: 'this-week', title: 'Create Landing Page', description: 'For webinar registration and product interest', timeEstimate: '2 hours', completed: false, notes: '', chatHistory: [] },
+        { id: 604, department: 'sales', priority: 'this-week', title: 'Prepare LinkedIn Launch Posts', description: 'Announce webinar and gather interest', timeEstimate: '45 min', completed: false, notes: '', chatHistory: [] },
+        { id: 605, department: 'sales', priority: 'this-month', title: 'Identify Target Customers', description: 'List of 50 ideal prospects from consulting network', timeEstimate: '90 min', completed: false, notes: '', chatHistory: [] },
+        { id: 606, department: 'sales', priority: 'this-month', title: 'Draft Sales Playbook', description: 'How to position value and handle objections', timeEstimate: '2 hours', completed: false, notes: '', chatHistory: [] },
+        { id: 607, department: 'sales', priority: 'future', title: 'Set Up Email Nurture Sequence', description: 'For webinar attendees and leads', timeEstimate: '3 hours', completed: false, notes: '', chatHistory: [] }
+    );
+    
+    // Customer Support items
+    items.push(
+        { id: 701, department: 'support', priority: 'this-week', title: 'Create FAQ Document', description: 'Common questions about products and pricing', timeEstimate: '60 min', completed: false, notes: '', chatHistory: [] },
+        { id: 702, department: 'support', priority: 'this-week', title: 'Set Up Support Email', description: 'support@ezbelta.com with auto-responder', timeEstimate: '20 min', completed: false, notes: '', chatHistory: [] },
+        { id: 703, department: 'support', priority: 'this-month', title: 'Write Onboarding Guide', description: 'Help new customers get started quickly', timeEstimate: '2 hours', completed: false, notes: '', chatHistory: [] },
+        { id: 704, department: 'support', priority: 'this-month', title: 'Create Product Demo Videos', description: 'Short tutorials for each feature', timeEstimate: '4 hours', completed: false, notes: '', chatHistory: [] },
+        { id: 705, department: 'support', priority: 'this-month', title: 'Draft Terms of Service', description: 'Legal protection for both parties', timeEstimate: '90 min', completed: false, notes: '', chatHistory: [] },
+        { id: 706, department: 'support', priority: 'future', title: 'Implement Live Chat Widget', description: 'For real-time customer support', timeEstimate: '60 min', completed: false, notes: '', chatHistory: [] },
+        { id: 707, department: 'support', priority: 'future', title: 'Build Knowledge Base', description: 'Self-service documentation portal', timeEstimate: '6 hours', completed: false, notes: '', chatHistory: [] }
     );
     
     return items;
