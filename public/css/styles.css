@@ -234,6 +234,16 @@ main {
     font-size: 10px;
     color: rgba(255, 255, 255, 0.5);
     margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.message-status {
+    font-size: 42px !important;
+    display: inline-block;
+    line-height: 1;
+    margin-left: 8px;
 }
 
 /* Project card */
@@ -315,6 +325,89 @@ html:not(.dark) .dept-tab.active {
     background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
     color: white;
     border-color: #2563eb;
+}
+
+/* Project tabs - same style as dept-tab */
+.project-tab {
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid #334155;
+    color: #94a3b8;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: all 200ms ease;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.project-tab:hover {
+    background: #334155;
+    color: #f1f5f9;
+}
+
+.project-tab.active {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+    border-color: #2563eb;
+}
+
+html:not(.dark) .project-tab {
+    border-color: #cbd5e1;
+    color: #64748b;
+}
+
+html:not(.dark) .project-tab:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+html:not(.dark) .project-tab.active {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+    border-color: #2563eb;
+}
+
+/* Project item cards - same style as action-item-card */
+.project-item-card {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    padding: 14px;
+    border-radius: 12px;
+    cursor: grab;
+    border-left: 4px solid transparent;
+    transition: transform 200ms ease, box-shadow 200ms ease;
+    border: 1px solid #334155;
+}
+
+.project-item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    border-left-color: #2563eb;
+}
+
+.project-item-card:active { cursor: grabbing; }
+
+/* Project item tab styles */
+.project-item-tab {
+    padding: 8px 16px;
+    border-bottom: 2px solid transparent;
+    color: #94a3b8;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: all 200ms ease;
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+.project-item-tab:hover {
+    color: #f1f5f9;
+    border-bottom-color: #475569;
+}
+
+.project-item-tab.active {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
 }
 
 /* Item detail tabs */
@@ -668,6 +761,22 @@ mark {
     }
 }
 
+/* Gmail email cards */
+[data-message-id] {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Gmail filter buttons */
+.filter-btn {
+    transition: all 200ms ease;
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    color: white;
+    border: 1px solid #2563eb;
+}
+
 /* Print styles */
 @media print {
     aside, .modal-backdrop, #toast-container {
@@ -682,4 +791,223 @@ mark {
         max-width: 100%;
         break-inside: avoid;
     }
+}
+
+/* File upload drag-and-drop */
+#files-view.drag-over {
+    position: relative;
+}
+
+#files-view.drag-over::after {
+    content: '📤 Drop files here to upload';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(59, 130, 246, 0.1);
+    border: 3px dashed rgb(59, 130, 246);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: rgb(59, 130, 246);
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* Video Analyzer Styles */
+.analysis-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.analysis-card:hover {
+    background: #334155;
+    border-color: #475569;
+    transform: translateY(-2px);
+}
+
+.analysis-title {
+    font-weight: 600;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.analysis-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: #94a3b8;
+}
+
+.analysis-meta a {
+    color: #60a5fa;
+    text-decoration: none;
+}
+
+.analysis-meta a:hover {
+    color: #93c5fd;
+}
+
+.empty-state {
+    text-align: center;
+    color: #64748b;
+    padding: 3rem;
+    font-style: italic;
+}
+
+#analysis-progress {
+    background: #0f172a;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    border: 1px solid #1e293b;
+}
+
+/* Video Analyzer Tabs */
+.video-tab {
+    background: transparent;
+    color: #94a3b8;
+}
+
+.video-tab:hover {
+    background: #334155;
+    color: #cbd5e1;
+}
+
+.video-tab.active {
+    background: #1e293b;
+    color: #ffffff;
+    border: 1px solid #475569;
+}
+
+/* Video Repository */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.stat-card {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.stat-card h3 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.stat-card p {
+    color: #94a3b8;
+    font-size: 0.875rem;
+    text-transform: capitalize;
+}
+
+.video-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.video-item {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    transition: all 0.2s;
+}
+
+.video-item:hover {
+    border-color: #475569;
+    background: #1e293b;
+}
+
+.video-item.selected {
+    border-color: #3b82f6;
+    background: #1e3a8a;
+}
+
+.video-item input[type="checkbox"] {
+    margin-top: 0.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+}
+
+.video-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.video-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.video-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.video-meta span {
+    white-space: nowrap;
+}
+
+.skip-reason, .processed-date {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 0.5rem;
+}
+
+.video-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.video-actions button, .video-actions a {
+    background: #334155;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.video-actions button:hover, .video-actions a:hover {
+    background: #475569;
+    transform: scale(1.1);
+}
+
+.video-count {
+    color: #94a3b8;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.empty-state {
+    text-align: center;
+    color: #64748b;
+    padding: 3rem;
+    font-size: 0.875rem;
 }

@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css?v=1770318455">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -47,46 +47,35 @@
             </div>
 
             <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+                <!-- Main Workflow -->
                 <button onclick="showView('dashboard')" data-view="dashboard" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
                     <span>🏠</span> <span>Dashboard</span>
                 </button>
                 <button onclick="showView('chat')" data-view="chat" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
                     <span>💬</span> <span>Chat</span>
                 </button>
-                <button onclick="showView('projects')" data-view="projects" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
-                    <span>📊</span> <span>Projects</span>
-                </button>
-                <button onclick="showView('tasks')" data-view="tasks" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
-                    <span>✅</span> <span>Tasks</span>
-                </button>
                 <button onclick="showView('action-items')" data-view="action-items" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
                     <span>📋</span> <span>Action Items</span>
+                </button>
+                <button onclick="showView('saas-apps')" data-view="saas-apps" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
+                    <span>🚀</span> <span>SaaS Apps</span>
                 </button>
                 <button onclick="showView('gmail')" data-view="gmail" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
                     <span>📧</span> <span>Gmail</span>
                 </button>
-
-                <div class="border-t border-slate-700 my-3"></div>
-
-                <button onclick="showView('memory')" data-view="memory" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
-                    <span>🧠</span> <span>Memory</span>
-                </button>
-                <button onclick="showView('sessions')" data-view="sessions" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
-                    <span>⚡</span> <span>Sessions</span>
-                </button>
                 <button onclick="showView('files')" data-view="files" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
                     <span>📁</span> <span>Files</span>
                 </button>
-                <button onclick="showView('monitoring')" data-view="monitoring" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
-                    <span>📊</span> <span>Monitoring</span>
+                <button onclick="showView('video-analyzer')" data-view="video-analyzer" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
+                    <span>📹</span> <span>Video Analyzer</span>
+                </button>
+                <button onclick="showView('webinars')" data-view="webinars" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
+                    <span>🎤</span> <span>Webinars</span>
                 </button>
 
                 <div class="border-t border-slate-700 my-3"></div>
 
-                <button onclick="toggleTheme()" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
-                    <span id="theme-icon">🌙</span> <span id="theme-text">Dark Mode</span>
-                </button>
-                
+                <!-- Settings & Admin -->
                 <button onclick="showView('settings')" data-view="settings" class="nav-btn w-full text-left px-4 py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center gap-3">
                     <span>⚙️</span> <span>Settings</span>
                 </button>
@@ -119,21 +108,16 @@
                     </div>
 
                     <!-- Stats Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
                         <div class="stat-card bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-5">
-                            <div class="text-blue-200 text-sm font-medium">Active Projects</div>
+                            <div class="text-blue-200 text-sm font-medium">SaaS Apps</div>
                             <div class="text-3xl font-bold mt-1" id="stat-projects">-</div>
-                            <div class="text-blue-200 text-xs mt-2">In progress</div>
+                            <div class="text-blue-200 text-xs mt-2">Products in development</div>
                         </div>
                         <div class="stat-card bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl p-5">
                             <div class="text-amber-100 text-sm font-medium">Tasks Due</div>
                             <div class="text-3xl font-bold mt-1" id="stat-tasks">-</div>
-                            <div class="text-amber-100 text-xs mt-2">Today & overdue</div>
-                        </div>
-                        <div class="stat-card bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl p-5">
-                            <div class="text-emerald-100 text-sm font-medium">Completed</div>
-                            <div class="text-3xl font-bold mt-1" id="stat-completed">-</div>
-                            <div class="text-emerald-100 text-xs mt-2">Tasks done</div>
+                            <div class="text-amber-100 text-xs mt-2">Action Items + App Tasks</div>
                         </div>
                         <div class="stat-card bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl p-5">
                             <div class="text-emerald-100 text-sm font-medium">Knowledge Base</div>
@@ -521,11 +505,28 @@
                         </div>
                     </div>
 
-                    <!-- High Priority Emails -->
+                    <!-- Smart Filters -->
+                    <div class="flex gap-2 mb-4">
+                        <button id="filter-all" onclick="setGmailFilter('all')" 
+                                class="filter-btn active px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition text-sm font-semibold">
+                            📬 All
+                        </button>
+                        <button id="filter-high" onclick="setGmailFilter('high')" 
+                                class="filter-btn px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition text-sm font-semibold">
+                            🔴 High Priority
+                        </button>
+                        <button id="filter-medium" onclick="setGmailFilter('medium')" 
+                                class="filter-btn px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition text-sm font-semibold">
+                            🟡 Medium Priority
+                        </button>
+                        <button id="filter-low" onclick="setGmailFilter('low')" 
+                                class="filter-btn px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition text-sm font-semibold">
+                            🔵 Low Priority
+                        </button>
+                    </div>
+
+                    <!-- Emails List -->
                     <div id="gmail-high-priority" class="bg-slate-800 rounded-lg p-6 border border-slate-700">
-                        <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
-                            <span>🔴</span> High Priority Emails
-                        </h3>
                         <div id="gmail-emails-list">
                             <div class="text-center text-slate-400 py-8">
                                 Click Refresh to load emails
@@ -621,6 +622,10 @@
                         <button onclick="createNewFolder()" class="text-sm text-slate-400 hover:text-white px-3 py-2 rounded-lg hover:bg-slate-700 transition">
                             📁 New Folder
                         </button>
+                        <button onclick="triggerFileUpload()" class="text-sm text-primary hover:text-blue-300 px-3 py-2 rounded-lg hover:bg-slate-700 transition font-semibold">
+                            ⬆️ Upload Files
+                        </button>
+                        <input type="file" id="file-upload-input" multiple style="display: none;" onchange="handleFileUpload(event)">
                         <button onclick="showView('chat')" class="text-sm bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg transition font-semibold">
                             ← Back to Chat
                         </button>
@@ -666,10 +671,17 @@
                         <h2 class="text-xl font-bold flex items-center gap-2">
                             <span>✅</span> <span id="action-items-dept-name">Action Items</span>
                         </h2>
-                        <button onclick="showNewActionItem()" 
-                            class="px-4 py-2 bg-primary hover:bg-primary-hover rounded-lg transition font-semibold">
-                            ➕ New Item
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="resetActionItems()" 
+                                class="px-3 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition text-sm"
+                                title="Reload action items from defaults (discards changes)">
+                                🔄 Reset
+                            </button>
+                            <button onclick="showNewActionItem()" 
+                                class="px-4 py-2 bg-primary hover:bg-primary-hover rounded-lg transition font-semibold">
+                                ➕ New Item
+                            </button>
+                        </div>
                     </div>
                     
                     <!-- Department Tabs -->
@@ -777,6 +789,137 @@
                 </div>
             </div>
 
+            <!-- Projects View -->
+            <div id="saas-apps-view" class="view flex-1 flex flex-col hidden">
+                <div class="p-4 border-b border-slate-700 bg-slate-800/50">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h2 class="text-xl font-bold flex items-center gap-2">
+                                <span>🚀</span> <span id="projects-name">SaaS Apps</span>
+                            </h2>
+                            <p id="projects-description" class="text-sm text-slate-400 mt-1"></p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="resetProjectItems()" 
+                                class="px-3 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition text-sm"
+                                title="Reload project items from defaults (discards changes)">
+                                🔄 Reset
+                            </button>
+                            <button onclick="showNewProjectItem()" 
+                                class="px-4 py-2 bg-primary hover:bg-primary-hover rounded-lg transition font-semibold">
+                                ➕ New Item
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Project Tabs -->
+                    <div class="flex gap-2 overflow-x-auto pb-2">
+                        <button class="project-tab active" data-project="enzuto" onclick="switchProject('enzuto')">
+                            🏦 Enzuto
+                        </button>
+                        <button class="project-tab" data-project="digital-twin" onclick="switchProject('digital-twin')">
+                            🏭 Digital Twin
+                        </button>
+                        <button class="project-tab" data-project="video-analyzer" onclick="switchProject('video-analyzer')">
+                            🎥 Video Analyzer
+                        </button>
+                        <button class="project-tab" data-project="a3" onclick="switchProject('a3')">
+                            📝 A3
+                        </button>
+                        <button class="project-tab" data-project="cshare" onclick="switchProject('cshare')">
+                            📊 CShare
+                        </button>
+                        <button class="project-tab" data-project="cmaintenance" onclick="switchProject('cmaintenance')">
+                            🔧 CMaintenance
+                        </button>
+                        <button class="project-tab" data-project="cdh" onclick="switchProject('cdh')">
+                            💾 CDH
+                        </button>
+                        <button class="project-tab" data-project="lms" onclick="switchProject('lms')">
+                            📚 LMS
+                        </button>
+                        <button class="project-tab" data-project="leonardo" onclick="switchProject('leonardo')">
+                            🎯 Leonardo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Kanban Board -->
+                <div class="flex-1 overflow-x-auto p-4">
+                    <div class="flex gap-4 h-full" style="min-width: 1200px;">
+                        <!-- URGENT Column -->
+                        <div class="flex-1 min-w-0">
+                            <div class="bg-gradient-to-br from-red-600/20 to-red-600/10 rounded-t-xl px-4 py-3 border-b-2 border-red-500">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg">🔴</span>
+                                        <span class="font-semibold">URGENT</span>
+                                    </div>
+                                    <span id="project-items-urgent-count" class="px-2 py-1 bg-red-600/30 rounded-full text-xs">0</span>
+                                </div>
+                            </div>
+                            <div id="project-items-urgent-column" class="bg-slate-800/30 rounded-b-xl p-3 space-y-2 min-h-[400px]"></div>
+                        </div>
+
+                        <!-- THIS WEEK Column -->
+                        <div class="flex-1 min-w-0">
+                            <div class="bg-gradient-to-br from-amber-500/20 to-amber-500/10 rounded-t-xl px-4 py-3 border-b-2 border-amber-500">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg">🟡</span>
+                                        <span class="font-semibold">THIS WEEK</span>
+                                    </div>
+                                    <span id="project-items-this-week-count" class="px-2 py-1 bg-amber-600/30 rounded-full text-xs">0</span>
+                                </div>
+                            </div>
+                            <div id="project-items-this-week-column" class="bg-slate-800/30 rounded-b-xl p-3 space-y-2 min-h-[400px]"></div>
+                        </div>
+
+                        <!-- THIS MONTH Column -->
+                        <div class="flex-1 min-w-0">
+                            <div class="bg-gradient-to-br from-green-600/20 to-green-600/10 rounded-t-xl px-4 py-3 border-b-2 border-green-500">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg">🟢</span>
+                                        <span class="font-semibold">THIS MONTH</span>
+                                    </div>
+                                    <span id="project-items-this-month-count" class="px-2 py-1 bg-green-600/30 rounded-full text-xs">0</span>
+                                </div>
+                            </div>
+                            <div id="project-items-this-month-column" class="bg-slate-800/30 rounded-b-xl p-3 space-y-2 min-h-[400px]"></div>
+                        </div>
+
+                        <!-- FUTURE Column -->
+                        <div class="flex-1 min-w-0">
+                            <div class="bg-gradient-to-br from-blue-600/20 to-blue-600/10 rounded-t-xl px-4 py-3 border-b-2 border-blue-500">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg">🔵</span>
+                                        <span class="font-semibold">FUTURE</span>
+                                    </div>
+                                    <span id="project-items-future-count" class="px-2 py-1 bg-blue-600/30 rounded-full text-xs">0</span>
+                                </div>
+                            </div>
+                            <div id="project-items-future-column" class="bg-slate-800/30 rounded-b-xl p-3 space-y-2 min-h-[400px]"></div>
+                        </div>
+
+                        <!-- COMPLETED Column -->
+                        <div class="flex-1 min-w-0">
+                            <div class="bg-gradient-to-br from-emerald-600/20 to-emerald-600/10 rounded-t-xl px-4 py-3 border-b-2 border-emerald-500">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg">✅</span>
+                                        <span class="font-semibold">COMPLETED</span>
+                                    </div>
+                                    <span id="project-items-completed-count" class="px-2 py-1 bg-emerald-600/30 rounded-full text-xs">0</span>
+                                </div>
+                            </div>
+                            <div id="project-items-completed-column" class="bg-slate-800/30 rounded-b-xl p-3 space-y-2 min-h-[400px]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Settings View -->
             <div id="settings-view" class="view flex-1 flex flex-col hidden">
                 <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
@@ -790,6 +933,63 @@
 
                 <div class="flex-1 overflow-y-auto p-6">
                     <div class="max-w-2xl mx-auto space-y-6">
+                        
+                        <!-- Appearance -->
+                        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6">
+                            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                                <span>🎨</span> Appearance
+                            </h3>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-medium">Theme</div>
+                                    <div class="text-sm text-slate-400">Switch between light and dark mode</div>
+                                </div>
+                                <button onclick="toggleTheme()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition flex items-center gap-2">
+                                    <span id="theme-icon-settings">🌙</span>
+                                    <span id="theme-text-settings">Dark Mode</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Tools -->
+                        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6">
+                            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                                <span>🔧</span> Advanced Tools
+                            </h3>
+                            <div class="space-y-3">
+                                <button onclick="showView('memory')" class="w-full text-left px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <span>🧠</span>
+                                        <div>
+                                            <div class="font-medium">Memory Files</div>
+                                            <div class="text-sm text-slate-400">View and manage memory files</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-slate-400">→</span>
+                                </button>
+                                <button onclick="showView('sessions')" class="w-full text-left px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <span>⚡</span>
+                                        <div>
+                                            <div class="font-medium">Sessions</div>
+                                            <div class="text-sm text-slate-400">View active Clawdbot sessions</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-slate-400">→</span>
+                                </button>
+                                <button onclick="showView('monitoring')" class="w-full text-left px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <span>📊</span>
+                                        <div>
+                                            <div class="font-medium">System Monitoring</div>
+                                            <div class="text-sm text-slate-400">View system stats and logs</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-slate-400">→</span>
+                                </button>
+                            </div>
+                        </div>
+
                         <!-- Gmail Settings -->
                         <div class="bg-slate-800 border border-slate-700 rounded-xl p-6">
                             <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
@@ -926,7 +1126,374 @@
                 </div>
             </div>
 
+            <!-- Video Analyzer View -->
+            <div id="video-analyzer-view" class="view flex-1 flex flex-col hidden">
+                <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <span>📹</span> Video Knowledge Extractor
+                    </h2>
+                    <button onclick="showView('chat')" class="text-sm bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg transition font-semibold">
+                        ← Back to Chat
+                    </button>
+                </div>
+                
+                <!-- Tab Navigation -->
+                <div class="border-b border-slate-700 bg-slate-800/30">
+                    <nav class="flex gap-1 p-2">
+                        <button onclick="showVideoTab('analyze')" id="video-tab-analyze" class="video-tab px-6 py-2.5 rounded-lg font-semibold transition active">
+                            🎬 Analyze Video
+                        </button>
+                        <button onclick="showVideoTab('repository')" id="video-tab-repository" class="video-tab px-6 py-2.5 rounded-lg font-semibold transition">
+                            📚 Video Repository
+                        </button>
+                    </nav>
+                </div>
+                
+                <!-- Tab: Analyze Video -->
+                <div id="video-tab-analyze-content" class="video-tab-content flex-1 overflow-y-auto p-6">
+                    <div class="max-w-4xl mx-auto space-y-6">
+                        
+                        <!-- API Key Setup -->
+                        <div id="video-analyzer-setup" class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                <span>🔑</span> Setup Required
+                            </h3>
+                            <p class="text-slate-400 mb-4">
+                                Video analysis requires an Anthropic API key. Get one from 
+                                <a href="https://console.anthropic.com/settings/keys" target="_blank" class="text-blue-400 hover:text-blue-300 underline">console.anthropic.com/settings/keys</a>
+                            </p>
+                            <div class="flex gap-2">
+                                <input 
+                                    type="password" 
+                                    id="anthropic-api-key-input" 
+                                    placeholder="sk-ant-api03-..." 
+                                    class="flex-1 bg-slate-900 text-white px-4 py-2 rounded-lg border border-slate-700 focus:border-blue-500 focus:outline-none"
+                                />
+                                <button 
+                                    id="save-api-key-btn"
+                                    class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-semibold transition"
+                                >
+                                    Save Key
+                                </button>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">
+                                Your API key is stored locally in your browser and never sent to our servers.
+                            </p>
+                        </div>
+
+                        <!-- Main Analyzer -->
+                        <div id="video-analyzer-main" class="space-y-6">
+                            
+                            <!-- Analyze Video Card -->
+                            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                    <span>🎬</span> Analyze YouTube Video
+                                </h3>
+                                <p class="text-slate-400 mb-4">
+                                    Extract comprehensive insights from any YouTube video: summary, key concepts, 
+                                    product opportunities, and ready-to-use prompts.
+                                </p>
+                                <div class="flex gap-2">
+                                    <input 
+                                        type="url" 
+                                        id="video-url-input" 
+                                        placeholder="https://www.youtube.com/watch?v=..." 
+                                        class="flex-1 bg-slate-900 text-white px-4 py-3 rounded-lg border border-slate-700 focus:border-blue-500 focus:outline-none"
+                                    />
+                                    <button 
+                                        id="analyze-video-btn"
+                                        class="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-lg font-semibold transition"
+                                    >
+                                        Analyze Video
+                                    </button>
+                                </div>
+                                
+                                <!-- Progress Indicator -->
+                                <div id="analysis-progress" class="mt-4 space-y-2" style="display: none;">
+                                    <div class="flex justify-between text-sm">
+                                        <span id="analysis-status" class="text-slate-400">Starting...</span>
+                                        <span id="analysis-progress-percent" class="text-blue-400 font-semibold">0%</span>
+                                    </div>
+                                    <div class="h-2 bg-slate-900 rounded-full overflow-hidden">
+                                        <div id="analysis-progress-bar" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Info -->
+                                <div class="mt-4 bg-slate-900 rounded-lg p-4 text-sm text-slate-400">
+                                    <p class="mb-2"><strong class="text-white">What you'll get:</strong></p>
+                                    <ul class="list-disc list-inside space-y-1 ml-2">
+                                        <li>📄 Summary - Executive overview + detailed breakdown</li>
+                                        <li>🧠 Key Concepts - Concepts and frameworks explained</li>
+                                        <li>💡 Ezbelta Insights - Product development opportunities</li>
+                                        <li>🛠️ Prompts & Examples - Ready-to-use templates and code</li>
+                                        <li>📚 README - Navigation guide and quick reference</li>
+                                    </ul>
+                                    <p class="mt-3 text-xs text-slate-500">
+                                        <strong>Cost:</strong> ~$0.50-1.00 per video using Haiku model (fast & efficient)
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Recent Analyses -->
+                            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                    <span>📚</span> Recent Analyses
+                                </h3>
+                                <div id="recent-analyses-list" class="space-y-2">
+                                    <div class="text-slate-400">Loading...</div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Instructions -->
+                            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                    <span>📖</span> How It Works
+                                </h3>
+                                <div class="space-y-3 text-slate-400">
+                                    <p>1. <strong class="text-white">Paste a YouTube URL</strong> from any video with English captions</p>
+                                    <p>2. <strong class="text-white">Click "Analyze Video"</strong> - the tool will:</p>
+                                    <ul class="list-disc list-inside ml-6 space-y-1 text-sm">
+                                        <li>Download video metadata and transcript</li>
+                                        <li>Run AI analysis using Claude (5 specialized prompts)</li>
+                                        <li>Generate structured documentation</li>
+                                        <li>Save everything to your knowledge base</li>
+                                    </ul>
+                                    <p>3. <strong class="text-white">View results</strong> in the Files browser under <code class="bg-slate-900 px-2 py-1 rounded">memory/lean-expertise/videos/</code></p>
+                                    <p class="text-sm text-slate-500 mt-4">
+                                        <strong>Tip:</strong> Analysis takes 2-5 minutes per video. You can analyze multiple videos in sequence.
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tab: Video Repository -->
+                <div id="video-tab-repository-content" class="video-tab-content flex-1 overflow-y-auto p-6" style="display: none;">
+                    <div class="max-w-7xl mx-auto space-y-6">
+                        
+                        <!-- Header & Sync -->
+                        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="text-xl font-semibold mb-2 flex items-center gap-2">
+                                        <span>📚</span> Video Repository
+                                    </h3>
+                                    <p class="text-slate-400 text-sm">
+                                        Manage and batch-process videos from your YouTube channel
+                                    </p>
+                                </div>
+                                <button id="sync-channel-btn" class="bg-blue-600 hover:bg-blue-700 px-6 py-2.5 rounded-lg font-semibold transition flex items-center gap-2">
+                                    <span>🔄</span> Sync Channel
+                                </button>
+                            </div>
+                            
+                            <!-- Sync Output -->
+                            <pre id="sync-output" class="bg-slate-900 rounded-lg p-4 text-xs text-slate-300 overflow-x-auto max-h-60" style="display: none;"></pre>
+                        </div>
+                        
+                        <!-- Statistics -->
+                        <div id="repo-stats" class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                <span>📊</span> Statistics
+                            </h3>
+                            <div class="text-slate-400">Loading...</div>
+                        </div>
+                        
+                        <!-- Filters & Actions -->
+                        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                <span>🔍</span> Filter & Manage
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm text-slate-400 mb-2">Status</label>
+                                    <select id="repo-status-filter" class="w-full bg-slate-900 text-white px-4 py-2 rounded-lg border border-slate-700 focus:border-blue-500 focus:outline-none">
+                                        <option value="all">All</option>
+                                        <option value="pending">⏳ Pending</option>
+                                        <option value="processed">✅ Processed</option>
+                                        <option value="skipped">⏭️ Skipped</option>
+                                        <option value="error">❌ Error</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-slate-400 mb-2">Priority</label>
+                                    <select id="repo-priority-filter" class="w-full bg-slate-900 text-white px-4 py-2 rounded-lg border border-slate-700 focus:border-blue-500 focus:outline-none">
+                                        <option value="all">All</option>
+                                        <option value="high">🔴 High</option>
+                                        <option value="normal">⚪ Normal</option>
+                                        <option value="low">🔵 Low</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-slate-400 mb-2">Search</label>
+                                    <input id="repo-search" type="text" placeholder="Search titles..." 
+                                           class="w-full bg-slate-900 text-white px-4 py-2 rounded-lg border border-slate-700 focus:border-blue-500 focus:outline-none">
+                                </div>
+                            </div>
+                            
+                            <!-- Batch Actions -->
+                            <div class="flex flex-wrap gap-2">
+                                <button id="select-all-btn" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                    Select All
+                                </button>
+                                <button id="deselect-all-btn" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                    Deselect All
+                                </button>
+                                <button id="batch-skip-btn" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                    ⏭️ Skip Selected
+                                </button>
+                                <button id="batch-process-btn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                    🚀 Batch Process Selected
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Video List -->
+                        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                <span>🎬</span> Videos
+                            </h3>
+                            <div id="repo-video-list">
+                                <div class="text-slate-400">Loading...</div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+            </div>
+
+            <!-- Webinars View -->
+            <div id="webinars-view" class="view flex-1 flex flex-col hidden">
+                <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <span>🎤</span> Webinars Production
+                    </h2>
+                    <div class="flex gap-2">
+                        <button id="create-webinar-btn" class="bg-primary hover:bg-primary-hover px-4 py-2 rounded-lg transition font-semibold flex items-center gap-2">
+                            <span>➕</span> New Webinar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="flex-1 overflow-y-auto p-6">
+                    <div class="max-w-7xl mx-auto space-y-6">
+                        
+                        <!-- Stats Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                                <div class="text-3xl mb-2">📅</div>
+                                <div class="text-2xl font-bold" id="webinar-upcoming-count">1</div>
+                                <div class="text-slate-400 text-sm">Upcoming</div>
+                            </div>
+                            <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                                <div class="text-3xl mb-2">🟡</div>
+                                <div class="text-2xl font-bold" id="webinar-production-count">1</div>
+                                <div class="text-slate-400 text-sm">In Production</div>
+                            </div>
+                            <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                                <div class="text-3xl mb-2">✅</div>
+                                <div class="text-2xl font-bold" id="webinar-completed-count">0</div>
+                                <div class="text-slate-400 text-sm">Completed</div>
+                            </div>
+                            <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                                <div class="text-3xl mb-2">📊</div>
+                                <div class="text-2xl font-bold" id="webinar-total-registrations">100+</div>
+                                <div class="text-slate-400 text-sm">Target Registrations</div>
+                            </div>
+                        </div>
+
+                        <!-- Calendar View -->
+                        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                <span>📅</span> Upcoming Webinars
+                            </h3>
+                            <div id="webinar-calendar" class="space-y-3">
+                                <!-- Calendar items will be injected here -->
+                                <div class="flex items-center gap-4 p-4 bg-slate-900 rounded-lg border border-slate-700 hover:border-blue-500 transition cursor-pointer" onclick="loadWebinar('2026-02-11')">
+                                    <div class="text-center min-w-[80px]">
+                                        <div class="text-2xl font-bold">Feb 11</div>
+                                        <div class="text-sm text-slate-400">10:00 AM MST</div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="font-semibold text-lg">Ezbelta Suite Launch</div>
+                                        <div class="text-slate-400 text-sm">Discover the Future of AI-Powered Manufacturing</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="bg-yellow-500/20 text-yellow-500 px-3 py-1 rounded-full text-sm font-semibold">
+                                            In Production
+                                        </div>
+                                        <div class="text-sm text-slate-400 mt-1">6 days away</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Active Projects -->
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                <span>🚀</span> Active Projects
+                            </h3>
+                            <div id="webinar-projects" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <!-- Project cards will be injected here -->
+                            </div>
+                        </div>
+
+                        <!-- Quick Links -->
+                        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                <span>⚡</span> Quick Actions
+                            </h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <button class="bg-slate-900 hover:bg-slate-700 p-4 rounded-lg transition text-center">
+                                    <div class="text-2xl mb-2">📋</div>
+                                    <div class="text-sm font-semibold">View Calendar</div>
+                                </button>
+                                <button class="bg-slate-900 hover:bg-slate-700 p-4 rounded-lg transition text-center">
+                                    <div class="text-2xl mb-2">📁</div>
+                                    <div class="text-sm font-semibold">Asset Library</div>
+                                </button>
+                                <button class="bg-slate-900 hover:bg-slate-700 p-4 rounded-lg transition text-center">
+                                    <div class="text-2xl mb-2">📊</div>
+                                    <div class="text-sm font-semibold">Analytics</div>
+                                </button>
+                                <button class="bg-slate-900 hover:bg-slate-700 p-4 rounded-lg transition text-center">
+                                    <div class="text-2xl mb-2">📝</div>
+                                    <div class="text-sm font-semibold">Templates</div>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
         </main>
+    </div>
+
+    <!-- Batch Process Modal -->
+    <div id="batch-process-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50" style="display: none;">
+        <div class="bg-slate-800 rounded-xl p-6 max-w-2xl w-full mx-4 border border-slate-700">
+            <h3 class="text-xl font-semibold mb-4">Batch Processing Videos</h3>
+            <div id="batch-progress" class="mb-4">
+                <div class="mb-2">
+                    <div class="h-3 bg-slate-900 rounded-full overflow-hidden">
+                        <div id="batch-progress-bar" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+                <p id="batch-progress-text" class="text-sm text-slate-400">Initializing...</p>
+            </div>
+            <pre id="batch-process-log" class="bg-slate-900 rounded-lg p-4 text-xs text-slate-300 overflow-y-auto max-h-96 mb-4"></pre>
+            <button onclick="document.getElementById('batch-process-modal').style.display='none'" 
+                    class="bg-slate-700 hover:bg-slate-600 px-6 py-2 rounded-lg font-semibold transition">
+                Close
+            </button>
+        </div>
     </div>
 
     <!-- Modal Container -->
@@ -936,10 +1503,11 @@
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
 
     <script src="/js/auth.js"></script>
-    <script src="/js/chat.js"></script>
-    <script src="/js/projects.js"></script>
+    <script src="/js/chat.js?v=1770317189"></script>
+    <script src="/js/api-bridge.js"></script>
+    <script src="/js/projects.js?v=1770317700"></script>
     <script src="/js/tasks.js"></script>
-    <script src="/js/action-items.js"></script>
+    <script src="/js/action-items.js?v=1770317700"></script>
     <script src="/js/speech.js"></script>
     <script src="/js/dashboard.js"></script>
     <script src="/js/memory.js"></script>
@@ -952,6 +1520,29 @@
     <script src="/js/quick-actions.js"></script>
     <script src="/js/settings.js"></script>
     <script src="/js/monitoring.js"></script>
-    <script src="/js/app.js"></script>
+    <script src="/js/video-analyzer.js"></script>
+    <script src="/js/video-repository.js"></script>
+    <script src="/js/webinars.js"></script>
+    <script>
+        // Video Analyzer Tab Switching
+        function showVideoTab(tab) {
+            // Hide all tab contents
+            document.querySelectorAll('.video-tab-content').forEach(el => el.style.display = 'none');
+            // Remove active class from all tabs
+            document.querySelectorAll('.video-tab').forEach(el => el.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(`video-tab-${tab}-content`).style.display = 'block';
+            // Add active class to selected tab
+            document.getElementById(`video-tab-${tab}`).classList.add('active');
+            
+            // Initialize repository when tab is shown
+            if (tab === 'repository' && window.VideoRepository && !VideoRepository.initialized) {
+                console.log('[showVideoTab] Initializing VideoRepository...');
+                VideoRepository.init();
+            }
+        }
+    </script>
+    <script src="/js/app.js?v=1770317700"></script>
 </body>
 </html>
